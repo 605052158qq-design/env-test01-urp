@@ -1,0 +1,1272 @@
+{
+  "songshu-green": {
+    "assetPath": "Assets/Map/Materials/MAT_001_songshu-green.mat",
+    "guid": "fcc9dc5362ba80dc3e2f04b1681ba8f3",
+    "color": [
+      0.15294118225574493,
+      0.41568630933761597,
+      0.09019608050584793
+    ],
+    "tex": null
+  },
+  "shumu": {
+    "assetPath": "Assets/Map/Materials/MAT_002_shumu.mat",
+    "guid": "295d5bd8156466cce86dc0f12b0777c8",
+    "color": [
+      0.4431372880935669,
+      0.19215688109397888,
+      0.06666667014360428
+    ],
+    "tex": null
+  },
+  "green-tree": {
+    "assetPath": "Assets/Map/Materials/MAT_003_green-tree.mat",
+    "guid": "f34ce6178ed1f619f5057870f3c85068",
+    "color": [
+      0.6000000238418579,
+      0.9254902601242065,
+      0.13333334028720856
+    ],
+    "tex": null
+  },
+  "09 - Default": {
+    "assetPath": "Assets/Map/Materials/MAT_004_09_-_Default.mat",
+    "guid": "550028c2c46a13fad62dbe4b8183c2f4",
+    "color": [
+      0.2039215862751007,
+      0.7215686440467834,
+      0.3137255012989044
+    ],
+    "tex": null
+  },
+  "white-flower": {
+    "assetPath": "Assets/Map/Materials/MAT_005_white-flower.mat",
+    "guid": "4ccfd8c1749de61776468afe322f7baa",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": null
+  },
+  "pinktree": {
+    "assetPath": "Assets/Map/Materials/MAT_006_pinktree.mat",
+    "guid": "dd904271872d30f74dbba6a0e1b247bf",
+    "color": [
+      0.9764706492424011,
+      0.45098042488098145,
+      0.6117647290229797
+    ],
+    "tex": null
+  },
+  "stone": {
+    "assetPath": "Assets/Map/Materials/MAT_007_stone.mat",
+    "guid": "e95f6606b4455b307c1f847501a4f210",
+    "color": [
+      0.7215686440467834,
+      0.6705882549285889,
+      0.6274510025978088
+    ],
+    "tex": null
+  },
+  "08 - Default": {
+    "assetPath": "Assets/Map/Materials/MAT_008_08_-_Default.mat",
+    "guid": "1db9aa69ca651d653df90285aee8365f",
+    "color": [
+      0.8980392813682556,
+      0.7843137979507446,
+      0.15294118225574493
+    ],
+    "tex": null
+  },
+  "15 - Default": {
+    "assetPath": "Assets/Map/Materials/MAT_009_15_-_Default.mat",
+    "guid": "4c78d28abd95d05b9d2b53b7c6705337",
+    "color": [
+      0.32549020648002625,
+      0.9137255549430847,
+      0.14901961386203766
+    ],
+    "tex": null
+  },
+  "xueshan": {
+    "assetPath": "Assets/Map/Materials/MAT_010_xueshan.mat",
+    "guid": "c9ec56edc8a5a99dc330aa5cbcc21f20",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": null
+  },
+  "weilan": {
+    "assetPath": "Assets/Map/Materials/MAT_011_weilan.mat",
+    "guid": "eb5bf39ffae5faab7867908642c15788",
+    "color": [
+      0.6039215922355652,
+      0.3450980484485626,
+      0.09019608050584793
+    ],
+    "tex": null
+  },
+  "water": {
+    "assetPath": "Assets/Map/Materials/MAT_012_water.mat",
+    "guid": "642f876c906a58bc564da2f80a2b9b68",
+    "color": [
+      0.12156863510608673,
+      0.7058823704719543,
+      0.9490196704864502
+    ],
+    "tex": null
+  },
+  "yizi": {
+    "assetPath": "Assets/Map/Materials/MAT_013_yizi.mat",
+    "guid": "e82af70315299fe65d7082b9cfa62938",
+    "color": [
+      0.5098039507865906,
+      0.19607844948768616,
+      0.07058823853731155
+    ],
+    "tex": null
+  },
+  "muxiang": {
+    "assetPath": "Assets/Map/Materials/MAT_014_muxiang.mat",
+    "guid": "ef8864d622ec83709e316135b818a05b",
+    "color": [
+      0.8235294818878174,
+      0.3607843220233917,
+      0.1098039299249649
+    ],
+    "tex": null
+  },
+  "lambert1": {
+    "assetPath": "Assets/Map/Materials/MAT_015_lambert1.mat",
+    "guid": "b3dc61870be97591d0605b450d8a6bee",
+    "color": [
+      0.5824000239372253,
+      0.5703267455101013,
+      0.5643455982208252
+    ],
+    "tex": null
+  },
+  "ludeng": {
+    "assetPath": "Assets/Map/Materials/MAT_016_ludeng.mat",
+    "guid": "48513f2c9a0b8cc171d04db6e3843ad3",
+    "color": [
+      0.0313725508749485,
+      0.0313725508749485,
+      0.0313725508749485
+    ],
+    "tex": null
+  },
+  "qiang": {
+    "assetPath": "Assets/Map/Materials/MAT_017_qiang.mat",
+    "guid": "75a8f56c1eb9d2e254f7cc69126f757c",
+    "color": [
+      1.0,
+      0.8627451658248901,
+      0.6980392336845398
+    ],
+    "tex": null
+  },
+  "fangding": {
+    "assetPath": "Assets/Map/Materials/MAT_018_fangding.mat",
+    "guid": "074c4eefbd173142bd6a1759ea5716a9",
+    "color": [
+      0.5411764979362488,
+      0.15294118225574493,
+      0.0784313753247261
+    ],
+    "tex": null
+  },
+  "penquan2": {
+    "assetPath": "Assets/Map/Materials/MAT_019_penquan2.mat",
+    "guid": "fba813a78571a563ea700c5a7a01aad9",
+    "color": [
+      0.9254902601242065,
+      0.7254902124404907,
+      0.7254902124404907
+    ],
+    "tex": null
+  },
+  "baoshi": {
+    "assetPath": "Assets/Map/Materials/MAT_020_baoshi.mat",
+    "guid": "2b81266ea643901ab1ff27b5edbf7e70",
+    "color": [
+      1.0,
+      0.08627451211214066,
+      0.08627451211214066
+    ],
+    "tex": null
+  },
+  "pinzi": {
+    "assetPath": "Assets/Map/Materials/MAT_021_pinzi.mat",
+    "guid": "fbf461e850b0b0cf6dd0bec432cb6d7b",
+    "color": [
+      0.4431372880935669,
+      0.21568629145622253,
+      0.125490203499794
+    ],
+    "tex": null
+  },
+  "24 - Default": {
+    "assetPath": "Assets/Map/Materials/MAT_022_24_-_Default.mat",
+    "guid": "862b7e22651df13f24cc1cd7d6743e50",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": "map1_Base_color.png"
+  },
+  "fangding2": {
+    "assetPath": "Assets/Map/Materials/MAT_023_fangding2.mat",
+    "guid": "ccbf74866724dcd70d84210d3f5cce30",
+    "color": [
+      0.7529412508010864,
+      0.21176472306251526,
+      0.10588236153125763
+    ],
+    "tex": null
+  },
+  "None.001": {
+    "assetPath": "Assets/Map/Materials/MAT_024_None_001.mat",
+    "guid": "a59cf010424b5da02bff6407b122fae3",
+    "color": [
+      0.800000011920929,
+      0.800000011920929,
+      0.800000011920929
+    ],
+    "tex": null
+  },
+  "Material #141": {
+    "assetPath": "Assets/Map/Materials/MAT_025_Material_141.mat",
+    "guid": "fc1aca00360fb27553c0ad1ed5973471",
+    "color": [
+      0.8588235974311829,
+      0.4784314036369324,
+      0.07058823853731155
+    ],
+    "tex": null
+  },
+  "I223-卡通农场资产\\I223-卡通农场资产_OBJ_NewAtlas": {
+    "assetPath": "Assets/Map/Materials/MAT_026_I223-_I223-__OBJ_NewAtlas.mat",
+    "guid": "9f6727f19b894d5a7b1f5765a1cd473d",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #26": {
+    "assetPath": "Assets/Map/Materials/MAT_027_Material_26.mat",
+    "guid": "0b4a18fc95861d05d6478e67ee37ec01",
+    "color": [
+      0.16862745583057404,
+      0.7764706611633301,
+      0.16862745583057404
+    ],
+    "tex": null
+  },
+  "Material #27": {
+    "assetPath": "Assets/Map/Materials/MAT_028_Material_27.mat",
+    "guid": "02b9074d83a01ac05c83a1d71419d052",
+    "color": [
+      0.5882353186607361,
+      0.40392160415649414,
+      0.16862745583057404
+    ],
+    "tex": null
+  },
+  "Material #28": {
+    "assetPath": "Assets/Map/Materials/MAT_029_Material_28.mat",
+    "guid": "9b8c3a1b0cd6668705366b1cbe0b455e",
+    "color": [
+      0.8705883026123047,
+      0.5882353186607361,
+      0.5882353186607361
+    ],
+    "tex": null
+  },
+  "apple": {
+    "assetPath": "Assets/Map/Materials/MAT_030_apple.mat",
+    "guid": "9766b285e08b39cdb1b8258a5f69be79",
+    "color": [
+      0.7450980544090271,
+      0.11764706671237946,
+      0.11764706671237946
+    ],
+    "tex": null
+  },
+  "Material #25": {
+    "assetPath": "Assets/Map/Materials/MAT_031_Material_25.mat",
+    "guid": "10c805745cf8fa133f2a8de6f3a22bf8",
+    "color": [
+      0.8000000715255737,
+      0.29019609093666077,
+      0.06666667014360428
+    ],
+    "tex": null
+  },
+  "Material #143": {
+    "assetPath": "Assets/Map/Materials/MAT_032_Material_143.mat",
+    "guid": "dd66508a5e555927b5ea1c958b8f06bc",
+    "color": [
+      0.5882353186607361,
+      0.2862745225429535,
+      0.16862745583057404
+    ],
+    "tex": null
+  },
+  "Material #142": {
+    "assetPath": "Assets/Map/Materials/MAT_033_Material_142.mat",
+    "guid": "6b4323c35f0cf92a341a1fbc9d7f6316",
+    "color": [
+      0.0784313753247261,
+      0.4392157196998596,
+      0.15294118225574493
+    ],
+    "tex": null
+  },
+  "map2": {
+    "assetPath": "Assets/Map/Materials/MAT_034_map2.mat",
+    "guid": "5092b8931d68a58d4d24f85c649aa787",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": "map2_Base_color.png"
+  },
+  "Material #167": {
+    "assetPath": "Assets/Map/Materials/MAT_035_Material_167.mat",
+    "guid": "49b9882e2001701730e52fd4253403ff",
+    "color": [
+      0.2352941334247589,
+      0.3803921937942505,
+      0.7137255072593689
+    ],
+    "tex": null
+  },
+  "Material #13700": {
+    "assetPath": "Assets/Map/Materials/MAT_036_Material_13700.mat",
+    "guid": "cc4ede22ee7b73bdb99144a8a8f13799",
+    "color": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "tex": null
+  },
+  "Material #13701": {
+    "assetPath": "Assets/Map/Materials/MAT_037_Material_13701.mat",
+    "guid": "1b7c8cb526f293074ff083c0d3f64513",
+    "color": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "tex": null
+  },
+  "Material #13702": {
+    "assetPath": "Assets/Map/Materials/MAT_038_Material_13702.mat",
+    "guid": "c69255cdd3a35099a2dc66c2782a6d16",
+    "color": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "tex": null
+  },
+  "Material #13703": {
+    "assetPath": "Assets/Map/Materials/MAT_039_Material_13703.mat",
+    "guid": "f07f9fa97d5fa619e90f1d2491b96bf9",
+    "color": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "tex": null
+  },
+  "Material #13704": {
+    "assetPath": "Assets/Map/Materials/MAT_040_Material_13704.mat",
+    "guid": "953e381c870377f997ffc41bbc758cba",
+    "color": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "tex": null
+  },
+  "Material #13705": {
+    "assetPath": "Assets/Map/Materials/MAT_041_Material_13705.mat",
+    "guid": "eae0cd09cc21fedeb625b962b81d58ff",
+    "color": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "tex": null
+  },
+  "Material #13711": {
+    "assetPath": "Assets/Map/Materials/MAT_042_Material_13711.mat",
+    "guid": "aa630f3fee56abf0ee58d973bf833cf1",
+    "color": [
+      0.46666666865348816,
+      0.16078431904315948,
+      0.08235294371843338
+    ],
+    "tex": null
+  },
+  "material_0___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_043_material_0___28648.mat",
+    "guid": "ef7b4745100d98b1359f5d032c48169e",
+    "color": [
+      0.729411780834198,
+      0.40784314274787903,
+      0.7843137383460999
+    ],
+    "tex": null
+  },
+  "material_1___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_044_material_1___28648.mat",
+    "guid": "4e6b55f69c2fcf2e93308ab004e7f86f",
+    "color": [
+      0.6117647290229797,
+      0.15294118225574493,
+      0.6901960968971252
+    ],
+    "tex": null
+  },
+  "material_2___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_045_material_2___28648.mat",
+    "guid": "43f0fa6b5c67c719a063a87cf2faf24f",
+    "color": [
+      0.40392157435417175,
+      0.22745098173618317,
+      0.7176470756530762
+    ],
+    "tex": null
+  },
+  "material_3___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_046_material_3___28648.mat",
+    "guid": "4c5b2a847bd2e491f349643d6ba6edf7",
+    "color": [
+      0.501960813999176,
+      0.8705882430076599,
+      0.9176470637321472
+    ],
+    "tex": null
+  },
+  "material_4___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_047_material_4___28648.mat",
+    "guid": "a2349ac1667f0a93b3f205501e140cb8",
+    "color": [
+      0.0,
+      0.7372549176216125,
+      0.8313725590705872
+    ],
+    "tex": null
+  },
+  "material_5___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_048_material_5___28648.mat",
+    "guid": "559b130ae90f61ab92e26e9dc55571f0",
+    "color": [
+      0.0117647061124444,
+      0.6078431606292725,
+      0.8980392217636108
+    ],
+    "tex": null
+  },
+  "material_6___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_049_material_6___28648.mat",
+    "guid": "8dce77038f1fa34a2c718bf23c901ca6",
+    "color": [
+      0.9725490212440491,
+      0.7333333492279053,
+      0.8156862854957581
+    ],
+    "tex": null
+  },
+  "material_7___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_050_material_7___28648.mat",
+    "guid": "65e0b838ea9f95ee4f3875d3e9dddadd",
+    "color": [
+      0.9411764740943909,
+      0.3843137323856354,
+      0.572549045085907
+    ],
+    "tex": null
+  },
+  "material_8___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_051_material_8___28648.mat",
+    "guid": "edfa8e2b0db0f6a64a20ac6082aaa2f5",
+    "color": [
+      0.95686274766922,
+      0.26274511218070984,
+      0.21176470816135406
+    ],
+    "tex": null
+  },
+  "material_9___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_052_material_9___28648.mat",
+    "guid": "18b977698b24819c17199df48cf78629",
+    "color": [
+      0.545098066329956,
+      0.7647058963775635,
+      0.29019609093666077
+    ],
+    "tex": null
+  },
+  "material_10___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_053_material_10___28648.mat",
+    "guid": "2a12e32ff5d8aae8d04e5f67a8797b95",
+    "color": [
+      0.2980392277240753,
+      0.686274528503418,
+      0.3137255012989044
+    ],
+    "tex": null
+  },
+  "material_11___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_054_material_11___28648.mat",
+    "guid": "d8a050fd074f25511dde28f8b8e36a06",
+    "color": [
+      0.0,
+      0.5882353186607361,
+      0.5333333611488342
+    ],
+    "tex": null
+  },
+  "material_12___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_055_material_12___28648.mat",
+    "guid": "991963cd02288176a3b3ab4cc7ffb10b",
+    "color": [
+      1.0,
+      0.9215686321258545,
+      0.23137255012989044
+    ],
+    "tex": null
+  },
+  "material_13___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_056_material_13___28648.mat",
+    "guid": "3ab2048b15fa41ad3896abcbef31bdd5",
+    "color": [
+      1.0,
+      0.5960784554481506,
+      0.0
+    ],
+    "tex": null
+  },
+  "material_14___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_057_material_14___28648.mat",
+    "guid": "22236e23b208d641716db8b9db7710dd",
+    "color": [
+      1.0,
+      0.34117648005485535,
+      0.13333334028720856
+    ],
+    "tex": null
+  },
+  "material_15___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_058_material_15___28648.mat",
+    "guid": "39b51a7fe7d12e40b2d50958417efce0",
+    "color": [
+      0.8117647171020508,
+      0.8470588326454163,
+      0.8627451062202454
+    ],
+    "tex": null
+  },
+  "material_16___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_059_material_16___28648.mat",
+    "guid": "7efdd92d3cb44d69000364a318f47eac",
+    "color": [
+      0.47058823704719543,
+      0.5647059082984924,
+      0.6117647290229797
+    ],
+    "tex": null
+  },
+  "material_17___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_060_material_17___28648.mat",
+    "guid": "7e98210dadc338fe5d9fa783f09d7ca0",
+    "color": [
+      0.2705882489681244,
+      0.3529411852359772,
+      0.3921568691730499
+    ],
+    "tex": null
+  },
+  "material_18___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_061_material_18___28648.mat",
+    "guid": "96347e105b2925c1f3d87ac05c533f49",
+    "color": [
+      1.0,
+      0.800000011920929,
+      0.5333333611488342
+    ],
+    "tex": null
+  },
+  "material_19___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_062_material_19___28648.mat",
+    "guid": "8a81ff886257337d0ff66d50c4bf67a5",
+    "color": [
+      0.8666666746139526,
+      0.6000000238418579,
+      0.2666666805744171
+    ],
+    "tex": null
+  },
+  "material_20___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_063_material_20___28648.mat",
+    "guid": "f741ccb6ceb9815e8c4c8c654854bb65",
+    "color": [
+      0.4745098054409027,
+      0.3333333432674408,
+      0.2823529541492462
+    ],
+    "tex": null
+  },
+  "material_21___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_064_material_21___28648.mat",
+    "guid": "472431f65ce08976c25323dbe5a2b11d",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": null
+  },
+  "material_22___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_065_material_22___28648.mat",
+    "guid": "e25e584074a64255654f13f98fad3f00",
+    "color": [
+      0.6196078658103943,
+      0.6196078658103943,
+      0.6196078658103943
+    ],
+    "tex": null
+  },
+  "material_23___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_066_material_23___28648.mat",
+    "guid": "268c23472b6ac8494004d33990237dea",
+    "color": [
+      0.10196078568696976,
+      0.10196078568696976,
+      0.10196078568696976
+    ],
+    "tex": null
+  },
+  "material_24___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_067_material_24___28648.mat",
+    "guid": "1452a0f33cbcb378feeecbdc47859e04",
+    "color": [
+      0.800000011920929,
+      0.800000011920929,
+      0.800000011920929
+    ],
+    "tex": null
+  },
+  "material_25___28648": {
+    "assetPath": "Assets/Map/Materials/MAT_068_material_25___28648.mat",
+    "guid": "a77af030ebbf101b50ae2d1c61cf506d",
+    "color": [
+      0.800000011920929,
+      0.800000011920929,
+      0.800000011920929
+    ],
+    "tex": null
+  },
+  "material_0___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_069_material_0___28652.mat",
+    "guid": "20d632fd6e61e1c79756536597a8deb9",
+    "color": [
+      0.729411780834198,
+      0.40784314274787903,
+      0.7843137383460999
+    ],
+    "tex": null
+  },
+  "material_1___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_070_material_1___28652.mat",
+    "guid": "c245e8515796a984122f7bc76ddd192f",
+    "color": [
+      0.6117647290229797,
+      0.15294118225574493,
+      0.6901960968971252
+    ],
+    "tex": null
+  },
+  "material_2___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_071_material_2___28652.mat",
+    "guid": "6fef195468d9038eb84eb36a1b2ecdc1",
+    "color": [
+      0.40392157435417175,
+      0.22745098173618317,
+      0.7176470756530762
+    ],
+    "tex": null
+  },
+  "material_3___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_072_material_3___28652.mat",
+    "guid": "fb5591d2c472f6c130e7035b6f9d13ec",
+    "color": [
+      0.501960813999176,
+      0.8705882430076599,
+      0.9176470637321472
+    ],
+    "tex": null
+  },
+  "material_4___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_073_material_4___28652.mat",
+    "guid": "bf7908f69ae8721dec1f3562d9fa4b02",
+    "color": [
+      0.0,
+      0.7372549176216125,
+      0.8313725590705872
+    ],
+    "tex": null
+  },
+  "material_5___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_074_material_5___28652.mat",
+    "guid": "3997fd322c769acc46ab569323eb057a",
+    "color": [
+      0.0117647061124444,
+      0.6078431606292725,
+      0.8980392217636108
+    ],
+    "tex": null
+  },
+  "material_6___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_075_material_6___28652.mat",
+    "guid": "3c1a72ce238a2f6864a33e54c116e0de",
+    "color": [
+      0.9725490212440491,
+      0.7333333492279053,
+      0.8156862854957581
+    ],
+    "tex": null
+  },
+  "material_7___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_076_material_7___28652.mat",
+    "guid": "c7d294029d487ae12614ff72516ab329",
+    "color": [
+      0.9411764740943909,
+      0.3843137323856354,
+      0.572549045085907
+    ],
+    "tex": null
+  },
+  "material_8___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_077_material_8___28652.mat",
+    "guid": "f557e3e95a5ec83b92d8c554e17b4757",
+    "color": [
+      0.95686274766922,
+      0.26274511218070984,
+      0.21176470816135406
+    ],
+    "tex": null
+  },
+  "material_9___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_078_material_9___28652.mat",
+    "guid": "44e2fd2c6e9622f2dd243cbdbf623866",
+    "color": [
+      0.545098066329956,
+      0.7647058963775635,
+      0.29019609093666077
+    ],
+    "tex": null
+  },
+  "material_10___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_079_material_10___28652.mat",
+    "guid": "0df027d61401b095a3f5e7921da8738d",
+    "color": [
+      0.2980392277240753,
+      0.686274528503418,
+      0.3137255012989044
+    ],
+    "tex": null
+  },
+  "material_11___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_080_material_11___28652.mat",
+    "guid": "8730073569a41fab6d0d65577a00fff0",
+    "color": [
+      0.0,
+      0.5882353186607361,
+      0.5333333611488342
+    ],
+    "tex": null
+  },
+  "material_12___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_081_material_12___28652.mat",
+    "guid": "e95aa4f660662a21b3aa43ba11ecd476",
+    "color": [
+      1.0,
+      0.9215686321258545,
+      0.23137255012989044
+    ],
+    "tex": null
+  },
+  "material_13___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_082_material_13___28652.mat",
+    "guid": "19d7cafad181a24cb3dd2c0cc5a9a146",
+    "color": [
+      1.0,
+      0.5960784554481506,
+      0.0
+    ],
+    "tex": null
+  },
+  "material_14___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_083_material_14___28652.mat",
+    "guid": "37becab8b13cf96eb395869685a798ed",
+    "color": [
+      1.0,
+      0.34117648005485535,
+      0.13333334028720856
+    ],
+    "tex": null
+  },
+  "material_15___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_084_material_15___28652.mat",
+    "guid": "4ca28497cdd4da94df273e743f64b790",
+    "color": [
+      0.8117647171020508,
+      0.8470588326454163,
+      0.8627451062202454
+    ],
+    "tex": null
+  },
+  "material_16___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_085_material_16___28652.mat",
+    "guid": "7f335811926b2012538db0ed23ce02c7",
+    "color": [
+      0.47058823704719543,
+      0.5647059082984924,
+      0.6117647290229797
+    ],
+    "tex": null
+  },
+  "material_17___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_086_material_17___28652.mat",
+    "guid": "8a251c3aa130f3e91bb0a6ca6624591b",
+    "color": [
+      0.2705882489681244,
+      0.3529411852359772,
+      0.3921568691730499
+    ],
+    "tex": null
+  },
+  "material_18___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_087_material_18___28652.mat",
+    "guid": "00afa064adfba4994f90d3a0cf222ea1",
+    "color": [
+      1.0,
+      0.800000011920929,
+      0.5333333611488342
+    ],
+    "tex": null
+  },
+  "material_19___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_088_material_19___28652.mat",
+    "guid": "d3cc0ed65e2d12cf0ebb328edbc8a611",
+    "color": [
+      0.8666666746139526,
+      0.6000000238418579,
+      0.2666666805744171
+    ],
+    "tex": null
+  },
+  "material_20___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_089_material_20___28652.mat",
+    "guid": "5bf0333901882391be0f313027fdfdba",
+    "color": [
+      0.4745098054409027,
+      0.3333333432674408,
+      0.2823529541492462
+    ],
+    "tex": null
+  },
+  "material_21___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_090_material_21___28652.mat",
+    "guid": "9a319e2c08cf0313f15f0b4dbe2fdb05",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": null
+  },
+  "material_22___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_091_material_22___28652.mat",
+    "guid": "2639d773bb7cdd28b7d225c9746176de",
+    "color": [
+      0.6196078658103943,
+      0.6196078658103943,
+      0.6196078658103943
+    ],
+    "tex": null
+  },
+  "material_23___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_092_material_23___28652.mat",
+    "guid": "0222f872bd48c1ac021d452d80b74539",
+    "color": [
+      0.10196078568696976,
+      0.10196078568696976,
+      0.10196078568696976
+    ],
+    "tex": null
+  },
+  "material_24___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_093_material_24___28652.mat",
+    "guid": "4ed1a6b7cadcb47c8f9e5e302a7b485c",
+    "color": [
+      0.800000011920929,
+      0.800000011920929,
+      0.800000011920929
+    ],
+    "tex": null
+  },
+  "material_25___28652": {
+    "assetPath": "Assets/Map/Materials/MAT_094_material_25___28652.mat",
+    "guid": "8b34145c2c3ff73e00e5304e9c8fb05f",
+    "color": [
+      0.800000011920929,
+      0.800000011920929,
+      0.800000011920929
+    ],
+    "tex": null
+  },
+  "Material #13271": {
+    "assetPath": "Assets/Map/Materials/MAT_095_Material_13271.mat",
+    "guid": "2d0c0e054f5243351c79b2dcd6aaadf9",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": "map4_Base_color.png"
+  },
+  "Material #12520": {
+    "assetPath": "Assets/Map/Materials/MAT_096_Material_12520.mat",
+    "guid": "b3e655a707112c343b1f8bc6453e0ba2",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12521": {
+    "assetPath": "Assets/Map/Materials/MAT_097_Material_12521.mat",
+    "guid": "3e2e249071f57adb74d66b180ffab655",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12553": {
+    "assetPath": "Assets/Map/Materials/MAT_098_Material_12553.mat",
+    "guid": "290a5e99523204c2df88911d312e13d0",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12554": {
+    "assetPath": "Assets/Map/Materials/MAT_099_Material_12554.mat",
+    "guid": "76b503f82e8bbd47177814a82fa4eb3f",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12542": {
+    "assetPath": "Assets/Map/Materials/MAT_100_Material_12542.mat",
+    "guid": "6742b16fab87743cc5360791b08dc055",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12543": {
+    "assetPath": "Assets/Map/Materials/MAT_101_Material_12543.mat",
+    "guid": "66d59dfe48b604e9e75df3b76b3fbfd2",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12509": {
+    "assetPath": "Assets/Map/Materials/MAT_102_Material_12509.mat",
+    "guid": "8b9676c8e1460861c2cc410c2ec133c7",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12510": {
+    "assetPath": "Assets/Map/Materials/MAT_103_Material_12510.mat",
+    "guid": "65e1eb540bdbcd6b5de3a32f3955313e",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12531": {
+    "assetPath": "Assets/Map/Materials/MAT_104_Material_12531.mat",
+    "guid": "c7f1dcb67fd77ae61cf448bb2f97717e",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #12532": {
+    "assetPath": "Assets/Map/Materials/MAT_105_Material_12532.mat",
+    "guid": "289b87bcd9e9cf7669a518460b88ff09",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #13270": {
+    "assetPath": "Assets/Map/Materials/MAT_106_Material_13270.mat",
+    "guid": "75e10d320646e317f06e8de861de1de5",
+    "color": [
+      1.0,
+      0.21176470816135406,
+      0.0
+    ],
+    "tex": null
+  },
+  "mogu": {
+    "assetPath": "Assets/Map/Materials/MAT_107_mogu.mat",
+    "guid": "b46cf42d9dcd0276482cbdac4dcccad9",
+    "color": [
+      0.4470588266849518,
+      0.27450981736183167,
+      0.1882352977991104
+    ],
+    "tex": null
+  },
+  "Material #13001": {
+    "assetPath": "Assets/Map/Materials/MAT_108_Material_13001.mat",
+    "guid": "a47b2c90e8f833aee3161b4396f4ddd7",
+    "color": [
+      0.8352941274642944,
+      0.686274528503418,
+      0.5686274766921997
+    ],
+    "tex": null
+  },
+  "Material #12218": {
+    "assetPath": "Assets/Map/Materials/MAT_109_Material_12218.mat",
+    "guid": "2de97e29b82969c952e6fe1d34f27d17",
+    "color": [
+      0.9372549057006836,
+      0.08627451211214066,
+      0.08627451211214066
+    ],
+    "tex": null
+  },
+  "Tile1_1": {
+    "assetPath": "Assets/Map/Materials/MAT_110_Tile1_1.mat",
+    "guid": "b57738ff8c29ded7fcf9bb4578f66913",
+    "color": [
+      0.5879999995231628,
+      0.5879999995231628,
+      0.5879999995231628
+    ],
+    "tex": null
+  },
+  "Material #13025": {
+    "assetPath": "Assets/Map/Materials/MAT_111_Material_13025.mat",
+    "guid": "f1d21909ed25f2f0f17849039dbd36a0",
+    "color": [
+      0.3450980484485626,
+      0.3450980484485626,
+      0.3450980484485626
+    ],
+    "tex": null
+  },
+  "Material #12370": {
+    "assetPath": "Assets/Map/Materials/MAT_112_Material_12370.mat",
+    "guid": "bcbad940ddd93b8bf2460b53a88d881a",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": "map3-1_Base_color.png"
+  },
+  "Material #12369": {
+    "assetPath": "Assets/Map/Materials/MAT_113_Material_12369.mat",
+    "guid": "a78c2d316769cb63e1f1b794023339ee",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": "map3-2_Base_color.png"
+  },
+  "Material #13116": {
+    "assetPath": "Assets/Map/Materials/MAT_114_Material_13116.mat",
+    "guid": "20964944f6734f3ec34bb89f68a2b266",
+    "color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "tex": "map5_Base_color.png"
+  },
+  "Material #12372": {
+    "assetPath": "Assets/Map/Materials/MAT_115_Material_12372.mat",
+    "guid": "2caeba208827272f647c0f8b6e4520cc",
+    "color": [
+      0.917647123336792,
+      0.4392157196998596,
+      0.22745099663734436
+    ],
+    "tex": null
+  },
+  "Material #12373": {
+    "assetPath": "Assets/Map/Materials/MAT_116_Material_12373.mat",
+    "guid": "4e6531d86502597e6d04b38e8695b353",
+    "color": [
+      0.6078431606292725,
+      0.29019609093666077,
+      0.14901961386203766
+    ],
+    "tex": null
+  },
+  "Tree2_1.001": {
+    "assetPath": "Assets/Map/Materials/MAT_117_Tree2_1_001.mat",
+    "guid": "5b01b2681e84821e7d20f1056ebd5d82",
+    "color": [
+      0.0637078806757927,
+      0.03880103677511215,
+      0.016990941017866135
+    ],
+    "tex": null
+  },
+  "deng": {
+    "assetPath": "Assets/Map/Materials/MAT_118_deng.mat",
+    "guid": "30b542168d2f71c1a2439672c6652902",
+    "color": [
+      1.0,
+      0.6000000238418579,
+      0.1725490242242813
+    ],
+    "tex": null
+  },
+  "Material #13268": {
+    "assetPath": "Assets/Map/Materials/MAT_119_Material_13268.mat",
+    "guid": "cdbe21a949c64dc1f6a860babeabdd0f",
+    "color": [
+      1.0,
+      0.9647058844566345,
+      0.0
+    ],
+    "tex": null
+  },
+  "Material #13267": {
+    "assetPath": "Assets/Map/Materials/MAT_120_Material_13267.mat",
+    "guid": "2945dfdb8b3a6644d4eb91a49182b7a8",
+    "color": [
+      0.18431372940540314,
+      0.9647058844566345,
+      0.6823529601097107
+    ],
+    "tex": null
+  },
+  "Material #13266": {
+    "assetPath": "Assets/Map/Materials/MAT_121_Material_13266.mat",
+    "guid": "e5b5ca2e38cbe576cee04e058ca13e49",
+    "color": [
+      0.9098039269447327,
+      0.3843137323856354,
+      0.0
+    ],
+    "tex": null
+  },
+  "Material #13269": {
+    "assetPath": "Assets/Map/Materials/MAT_122_Material_13269.mat",
+    "guid": "151e7b54163ee3223dc0e84a83442a2d",
+    "color": [
+      0.0,
+      0.4941176474094391,
+      1.0
+    ],
+    "tex": null
+  },
+  "Material #13265": {
+    "assetPath": "Assets/Map/Materials/MAT_123_Material_13265.mat",
+    "guid": "38cf55c2129ed663202db075322dc290",
+    "color": [
+      0.20392157137393951,
+      1.0,
+      0.24313725531101227
+    ],
+    "tex": null
+  },
+  "Material #13264": {
+    "assetPath": "Assets/Map/Materials/MAT_124_Material_13264.mat",
+    "guid": "8f3b5b7bceb664f5b99f9768217ddaf8",
+    "color": [
+      0.8156862854957581,
+      0.16862745583057404,
+      1.0
+    ],
+    "tex": null
+  },
+  "Material #13117": {
+    "assetPath": "Assets/Map/Materials/MAT_125_Material_13117.mat",
+    "guid": "8aab15b6a61950d41868c8cc0589a392",
+    "color": [
+      0.24705882370471954,
+      0.8509804010391235,
+      1.0
+    ],
+    "tex": null
+  },
+  "heliu-shitou": {
+    "assetPath": "Assets/Map/Materials/MAT_126_heliu-shitou.mat",
+    "guid": "33b4b3822e88135bb6a96face02e85f0",
+    "color": [
+      0.6666666865348816,
+      0.572549045085907,
+      0.5333333611488342
+    ],
+    "tex": null
+  },
+  "Material #13792": {
+    "assetPath": "Assets/Map/Materials/MAT_127_Material_13792.mat",
+    "guid": "b40751812660e7805747a30589ae6fe2",
+    "color": [
+      0.3921568691730499,
+      0.6235294342041016,
+      0.09803921729326248
+    ],
+    "tex": null
+  }
+}

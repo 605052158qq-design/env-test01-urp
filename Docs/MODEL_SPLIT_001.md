@@ -9,6 +9,13 @@
 
 Both assets were extracted from disconnected mesh islands in `ENV_test01_1021.FBX` object `Plane009` using Blender. The original FBX remains unchanged.
 
+The Blender source files are deliberately kept outside `Assets/` so Unity will not import them:
+
+- `SourceAssets/Blender/ENV_Source_Import_Backup.blend` — a clean import backup made before any hierarchy or name changes.
+- `SourceAssets/Blender/ENV_Processed_Source.blend` — the working source for manual export. It contains `ENV_SourceMap`, `ENV_Boat` (`ENV_Boat_Hull` and `ENV_Boat_Interior`), `ENV_Water_Surface`, and `ENV_Dock`.
+
+Only objects whose purpose was confirmed were renamed. The remaining environment objects intentionally retain their original names pending an asset-by-asset identification pass.
+
 ## Intended Unity use
 
 - Place `ENV_Boat` under a dedicated `BoatRoot` GameObject. Boat movement, arrival markers, collider, and interaction scripts attach to that root only.

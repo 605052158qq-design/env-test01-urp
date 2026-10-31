@@ -15,7 +15,14 @@ MonoBehaviour:
   k_AssetVersion: 3
   m_RenderingLayerNames:
   - Default
-  m_ValidRenderingLayers: 1
+  - hui1
+  - hui2
+  - hui3
+  - hui4
+  - hui5
+  - hui6
+  - hui7
+  m_ValidRenderingLayers: 255
   lightLayerName0: 
   lightLayerName1: 
   lightLayerName2: 

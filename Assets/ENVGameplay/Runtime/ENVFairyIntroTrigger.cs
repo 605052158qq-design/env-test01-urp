@@ -12,6 +12,9 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
     public ENVFairyFollower fairy;
     public VideoClip suppliedFairyIntroVideo;
     public Camera gameCamera;
+    [Tooltip("Provides visible feedback while the final fairy video/model is pending.")]
+    public ENVRegionTitleUI titleUi;
+    public string triggerMessage = "古树苏醒 · 精灵的光芒正在靠近";
     public UnityEvent onFairyAppeared;
     private bool fired;
     private bool playing;
@@ -36,6 +39,9 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
         if (suppliedFairyIntroVideo == null) { Complete(); return; }
         StartCoroutine(PlayVideo());
     }
+
+    /// <summary>Invoked from the V1 debug GUI; no temporary collider is needed.</summary>
+    public void DebugActivate() { Activate(); }
     private IEnumerator PlayVideo()
     {
         playing = true;
@@ -64,6 +70,8 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
     private void Complete()
     {
         if (fairy != null) fairy.BeginFollow();
+        if (titleUi == null) titleUi = ENVRegionTitleUI.Instance;
+        if (titleUi != null && !string.IsNullOrWhiteSpace(triggerMessage)) titleUi.Show(triggerMessage, 3.5f);
         if (onFairyAppeared != null) onFairyAppeared.Invoke();
     }
     private void OnDisable()

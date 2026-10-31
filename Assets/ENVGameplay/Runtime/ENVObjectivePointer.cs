@@ -36,13 +36,13 @@ public sealed class ENVObjectivePointer : MonoBehaviour
         }
         else
         {
-            var t = item.AddComponent<Text>(); t.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            var t = item.AddComponent<Text>(); t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             t.text = "◆"; t.fontSize = 40; t.alignment = TextAnchor.MiddleCenter;
             t.color = new Color(1f, 0.9f, 0.4f); t.raycastTarget = false;
         }
         GameObject label = new GameObject("Objective Distance", typeof(RectTransform), typeof(Text));
         label.transform.SetParent(item.transform, false);
-        distanceLabel = label.GetComponent<Text>(); distanceLabel.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        distanceLabel = label.GetComponent<Text>(); distanceLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         distanceLabel.fontSize = 17; distanceLabel.alignment = TextAnchor.MiddleCenter; distanceLabel.color = Color.white;
         distanceLabel.raycastTarget = false;
         distanceLabel.rectTransform.sizeDelta = new Vector2(190f, 28f);

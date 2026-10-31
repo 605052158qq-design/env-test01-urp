@@ -10,13 +10,24 @@ public sealed class ENVGemInteractor : MonoBehaviour
     [Min(0.5f)] public float maxDistance = 3f;
     public bool showDebugHint = false;
     private CharacterController controller;
-    private void Awake() { controller = GetComponent<CharacterController>(); }
+    private ENVPlayerVisualAnimator visualAnimator;
+    private void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+        visualAnimator = GetComponent<ENVPlayerVisualAnimator>();
+    }
     private void Update()
     {
         if (controller != null && !controller.enabled) return; // sitting/boat
         if (!EPressed()) return;
         ENVGem closest = FindNearest();
-        if (closest != null) closest.TryActivate();
+        if (closest != null && closest.TryActivate())
+        {
+            // The supplied touch clip is a one-shot acknowledgement for the real
+            // interaction path. Movement continues to drive Idle/Walk normally.
+            if (visualAnimator == null) visualAnimator = GetComponent<ENVPlayerVisualAnimator>();
+            if (visualAnimator != null) visualAnimator.PlayTouch();
+        }
     }
     public ENVGem FindNearest()
     {

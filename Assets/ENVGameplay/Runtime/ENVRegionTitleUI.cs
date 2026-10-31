@@ -36,7 +36,7 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         textGO.transform.SetParent(canvasGO.transform, false);
         group = textGO.GetComponent<CanvasGroup>();
         titleText = textGO.GetComponent<Text>();
-        titleText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         titleText.fontSize = 54;
         titleText.alignment = TextAnchor.MiddleCenter;
         titleText.color = Color.white;

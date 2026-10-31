@@ -30,8 +30,20 @@ public static class ENVStartScreenSetup
         menu.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
         GetOrAdd<GraphicRaycaster>(menu);
 
-        Image background = FullScreenImage(menu.transform, "MenuBackground", LoadSprite("主界面（整体）_UI.png"));
-        background.raycastTarget = false;
+        // Earlier setup used this flattened screenshot as the whole menu. Keep it
+        // in the scene for rollback, but never allow it to cover the supplied MP4.
+        Transform legacyBackground = menu.transform.Find("MenuBackground");
+        if (legacyBackground != null) legacyBackground.gameObject.SetActive(false);
+
+        ENVMenuVideoBackground background = GetOrAdd<ENVMenuVideoBackground>(menu);
+        background.suppliedVideo = AssetDatabase.LoadAssetAtPath<VideoClip>(UiPath + "开始页面_4k.mp4");
+        background.playOnAwake = true;
+        background.muteAudio = true;
+        Image title = FullScreenImage(menu.transform, "Title", LoadSprite("主界面_标题ui.png"));
+        Image startNormal = FullScreenImage(menu.transform, "StartNormal", LoadSprite("主界面_开始游戏ui.png"));
+        Image resumeNormal = FullScreenImage(menu.transform, "ContinueNormal", LoadSprite("主界面_继续游戏ui.png"));
+        Image exitNormal = FullScreenImage(menu.transform, "ExitNormal", LoadSprite("主界面_退出游戏ui.png"));
+        title.raycastTarget = startNormal.raycastTarget = resumeNormal.raycastTarget = exitNormal.raycastTarget = false;
         Image start = FullScreenImage(menu.transform, "StartHighlight", LoadSprite("主界面_开始游戏（选中）ui.png"));
         Image resume = FullScreenImage(menu.transform, "ContinueHighlight", LoadSprite("主界面_继续游戏（选中）ui.png"));
         Image exit = FullScreenImage(menu.transform, "ExitHighlight", LoadSprite("主界面_退出游戏（选中）ui.png"));
@@ -40,16 +52,16 @@ public static class ENVStartScreenSetup
         resume.gameObject.SetActive(false);
         exit.gameObject.SetActive(false);
 
-        GameObject sequenceObject = FindOrCreateChild(root.transform, "IntroSequence");
-        VideoPlayer player = GetOrAdd<VideoPlayer>(sequenceObject);
-        ENVVideoSequence sequence = GetOrAdd<ENVVideoSequence>(sequenceObject);
-        sequence.suppliedVideo = AssetDatabase.LoadAssetAtPath<VideoClip>(UiPath + "开始页面_4k效果预览.mp4");
-        sequence.targetCamera = Camera.main;
-        sequence.playOnStart = false;
-        player.playOnAwake = false;
+        GameObject cutsceneObject = FindOrCreateChild(root.transform, "DockingCutscene");
+        ENVIntroCutscene cutscene = GetOrAdd<ENVIntroCutscene>(cutsceneObject);
+        cutscene.Configure("潮声渐近……", "船正驶向微光码头");
 
         screen.menuRoot = menu;
-        screen.introSequence = sequence;
+        screen.introSequence = null;
+        screen.introCutscene = cutscene;
+        // Explicit UnityEngine qualification also keeps this static editor utility
+        // independent from any project type named Object.
+        screen.boatArrival = UnityEngine.Object.FindObjectOfType<ENVBoatArrival>(true);
         screen.startHighlight = start;
         screen.continueHighlight = resume;
         screen.exitHighlight = exit;
@@ -58,7 +70,7 @@ public static class ENVStartScreenSetup
         EditorUtility.SetDirty(root);
         EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
-        Debug.Log("[ENV L10] Start screen installed from Assets/UI. Enter, Space, or the supplied Start button starts the intro, then enables player input.", root);
+        Debug.Log("[ENV L10] Menu now uses 开始页面_4k.mp4 as its looping background. Start plays the placeholder docking handoff, then L06 docks the real boat.", root);
     }
 
     [MenuItem("Tools/ENV Test01/14 - Validate Start Screen (Play + Screenshot)")]
@@ -81,9 +93,15 @@ public static class ENVStartScreenSetup
     private static Behaviour[] FindGameplayInput()
     {
         var player = Object.FindObjectOfType<ENVPrototypeThirdPersonController>();
-        if (player == null) return new Behaviour[0];
+        var camera = Object.FindObjectOfType<ENVPrototypeOrbitCamera>();
+        if (player == null)
+            return camera == null ? new Behaviour[0] : new Behaviour[] { camera };
         var interaction = player.GetComponent<ENVPlayerInteraction>();
-        return interaction == null ? new Behaviour[] { player } : new Behaviour[] { player, interaction };
+        if (interaction == null)
+            return camera == null ? new Behaviour[] { player } : new Behaviour[] { player, camera };
+        return camera == null
+            ? new Behaviour[] { player, interaction }
+            : new Behaviour[] { player, interaction, camera };
     }
 
     private static Image FullScreenImage(Transform parent, string name, Sprite sprite)

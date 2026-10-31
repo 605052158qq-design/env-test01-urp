@@ -83,6 +83,20 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
         PlayClip(sitDownClip != null ? sitDownClip : seatedIdleClip, sitDownClip == null && seatedIdleClip != null, true);
     }
 
+    /// <summary>V1 GUI-only shortcut; it bypasses proximity but calls normal sit/stand logic.</summary>
+    public void DebugToggleSeat()
+    {
+        if (CurrentMode == ActorMode.Sitting)
+        {
+            if (standRoutine == null) standRoutine = StartCoroutine(StandUp());
+            return;
+        }
+        if (CurrentMode != ActorMode.Free) return;
+
+        ENVSeat seat = FindObjectOfType<ENVSeat>(true);
+        if (seat != null) Sit(seat);
+    }
+
     private IEnumerator StandUp()
     {
         CurrentMode = ActorMode.StandingUp;

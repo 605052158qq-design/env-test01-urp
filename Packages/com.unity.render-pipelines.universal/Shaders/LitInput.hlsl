@@ -29,6 +29,13 @@ half _ClearCoatSmoothness;
 half _DetailAlbedoMapScale;
 half _DetailNormalMapScale;
 half _Surface;
+// ENV: appended to UnityPerMaterial, retaining existing URP Lit fields.
+half _Dissolve;
+half _DissolveNoiseScale;
+half _DissolveTexStrength;
+half _DissolveEdgeWidth;
+half4 _DissolveEdgeColor;
+half _DissolveEdgeIntensity;
 CBUFFER_END
 
 // NOTE: Do not ifdef the properties for dots instancing, but ifdef the actual usage.
@@ -115,6 +122,39 @@ void SetupDOTSLitMaterialPropertyCaches()
 #define _Surface                unity_DOTS_Sampled_Surface
 
 #endif
+
+// ENV dissolve is an additive extension of Lit. It never changes renderer-layer
+// colour recovery, other Lit surface properties, or the gameplay event.
+TEXTURE2D(_DissolveNoiseTex); SAMPLER(sampler_DissolveNoiseTex);
+
+float ENV_DissolveHash(float2 p)
+{
+    return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+}
+
+float ENV_DissolveNoise(float2 uv)
+{
+    float2 p = uv * max((float)_DissolveNoiseScale, 0.001);
+    float2 cell = floor(p);
+    float2 f = frac(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float procedural = lerp(
+        lerp(ENV_DissolveHash(cell), ENV_DissolveHash(cell + float2(1, 0)), f.x),
+        lerp(ENV_DissolveHash(cell + float2(0, 1)), ENV_DissolveHash(cell + float2(1, 1)), f.x), f.y);
+    float sampled = SAMPLE_TEXTURE2D(_DissolveNoiseTex, sampler_DissolveNoiseTex, p).r;
+    return saturate(lerp(procedural, sampled, saturate(_DissolveTexStrength)));
+}
+
+// Return edge weighting. At progress=0 there is no clipping, so ordinary Lit
+// materials and their pre-existing rendering-layer greyscale behave identically.
+half ENV_DissolveClip(float2 uv)
+{
+    if (_Dissolve <= 0.00001h) return 0.0h;
+    float n = ENV_DissolveNoise(uv);
+    clip(n - (float)_Dissolve);
+    return (half)(1.0 - smoothstep((float)_Dissolve,
+        (float)_Dissolve + max((float)_DissolveEdgeWidth, 0.001), n));
+}
 
 TEXTURE2D(_ParallaxMap);        SAMPLER(sampler_ParallaxMap);
 TEXTURE2D(_OcclusionMap);       SAMPLER(sampler_OcclusionMap);
@@ -268,6 +308,11 @@ inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfa
     outSurfaceData.occlusion = SampleOcclusion(uv);
     outSurfaceData.emission = SampleEmission(uv, _EmissionColor.rgb, TEXTURE2D_ARGS(_EmissionMap, sampler_EmissionMap));
 
+    // ENV: same clip used by LitForwardPass and LitGBufferPass. Keep original
+    // final colour-recovery call in LitForwardPass untouched.
+    half envDissolveEdge = ENV_DissolveClip(uv);
+    outSurfaceData.emission += envDissolveEdge * _DissolveEdgeColor.rgb * _DissolveEdgeIntensity;
+
 #if defined(_CLEARCOAT) || defined(_CLEARCOATMAP)
     half2 clearCoat = SampleClearCoat(uv);
     outSurfaceData.clearCoatMask       = clearCoat.r;
@@ -284,5 +329,18 @@ inline void InitializeStandardLitSurfaceData(float2 uv, out SurfaceData outSurfa
     outSurfaceData.normalTS = ApplyDetailNormal(detailUv, outSurfaceData.normalTS, detailMask);
 #endif
 }
+
+// The standard URP ShadowCaster/DepthOnly/DepthNormals includes call
+// SampleAlbedoAlpha only in their _ALPHATEST_ON variants. Routing that call
+// through the same clip keeps these passes consistent on gem materials whose
+// Alpha Clipping checkbox is enabled (with opaque gem textures).
+// This is declared AFTER InitializeStandardLitSurfaceData intentionally.
+inline half4 ENV_SampleAlbedoAlphaDissolve(float2 uv, TEXTURE2D_PARAM(tex, texSampler))
+{
+    half4 sampleValue = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(tex, texSampler));
+    ENV_DissolveClip(uv);
+    return sampleValue;
+}
+#define SampleAlbedoAlpha ENV_SampleAlbedoAlphaDissolve
 
 #endif // UNIVERSAL_INPUT_SURFACE_PBR_INCLUDED

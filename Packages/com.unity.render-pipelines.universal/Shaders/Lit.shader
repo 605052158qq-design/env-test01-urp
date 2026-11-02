@@ -10,6 +10,16 @@ Shader "Universal Render Pipeline/Lit"
 
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
+        // ENV additive dissolve; zero keeps the original URP Lit appearance.
+        // ENVGemDissolveBridge animates _Dissolve through MaterialPropertyBlock.
+        _Dissolve("ENV Dissolve Progress", Range(0.0, 1.01)) = 0.0
+        [NoScaleOffset] _DissolveNoiseTex("ENV Dissolve Noise (Optional)", 2D) = "white" {}
+        _DissolveNoiseScale("ENV Dissolve Noise Scale", Range(0.5, 40.0)) = 8.0
+        _DissolveTexStrength("ENV Use Noise Texture", Range(0.0, 1.0)) = 0.0
+        _DissolveEdgeWidth("ENV Dissolve Edge Width", Range(0.001, 0.25)) = 0.07
+        [HDR] _DissolveEdgeColor("ENV Dissolve Edge Color", Color) = (1.0, 0.55, 0.12, 1.0)
+        _DissolveEdgeIntensity("ENV Dissolve Edge Intensity", Range(0.0, 8.0)) = 2.0
+
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
         _SmoothnessTextureChannel("Smoothness texture channel", Float) = 0
 

@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ENV_Water_StylizedWaterHLSL 1
+  m_Shader: {fileID: 4800000, guid: 176df31be2a6e9846ace917527cf23ba, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _USEPOLARUV_ON
+  - _USEREFLECTIONRT_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _ReflectionRT:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RenderTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RippleNoiseTex:
+        m_Texture: {fileID: 2800000, guid: a6ea74ba391b1de45a0485c24e8685d8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _FoamAmount: 5.5
+    - _FoamCutoff: 0
+    - _InteractionRippleCutoff: 0.25
+    - _NormalStrength: 0.691
+    - _PolarAngularTiling: 0.1
+    - _PolarRadialTiling: 2.4
+    - _PolarRingIntensity: 0.55
+    - _PolarRingSpeed: 0.1
+    - _PolarRingWidth: 0.02
+    - _PolarRotationSpeed: 0
+    - _RTCamera: 0
+    - _ReflectionFlipY: 0
+    - _ReflectionFresnel: 3
+    - _ReflectionIntensity: 0.28
+    - _ReflectionUseAlpha: 0
+    - _RefractionStrength: 0.01
+    - _RippleIntensity: 0.18
+    - _RippleThreshold: 0.962
+    - _RippleTiling: 0.05
+    - _Shineness: 0
+    - _SurfaceScale: 0
+    - _UsePolarUV: 1
+    - _UseReflectionRT: 1
+    - _WaterDepth: 2.12
+    - _WaterSpeed: 1
+    - _WaveAmplitude: 0.1
+    - _WaveFrequency: 1
+    - _WaveSpeed: 1
+    m_Colors:
+    - _DeepWater: {r: 0.09803921, g: 0.7616448, b: 1, a: 0}
+    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _InteractorPosition: {r: 0, g: 0, b: 0, a: 0}
+    - _PolarCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _RippleColor: {r: 0, g: 1.6714526, b: 1.5467173, a: 1}
+    - _RippleSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _ShallowWater: {r: 0.43867922, g: 0.7817086, b: 1, a: 0}
+  m_BuildTextureStacks: []

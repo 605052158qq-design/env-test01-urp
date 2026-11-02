@@ -1,63 +1,136 @@
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-/// <summary>One logical manager, no duplicate art. Register actual gems on the existing map.</summary>
+/// <summary>
+/// Seven-gem progress manager. Only the actual gems already in the scene are registered.
+/// It does not spawn or replace any art/prefabs. Drop-in replacement for the existing script;
+/// keep the existing .meta file so all Unity scene references remain valid.
+/// </summary>
 [DisallowMultipleComponent]
 public sealed class ENVWorldProgress : MonoBehaviour
 {
     public static ENVWorldProgress Instance { get; private set; }
     public bool requireSequence = true;
+    [Min(1)] public int expectedGemCount = 7;
     public UnityEvent onAllGemsActivated;
 
     private readonly List<ENVGem> gems = new List<ENVGem>();
     public IReadOnlyList<ENVGem> Gems { get { return gems; } }
     public event Action<ENVGem> GemActivated;
+    public int RegisteredGemCount { get { return gems.Count; } }
+    public bool SetupReady { get { return ValidateSetup(false); } }
+
     private bool completed;
+    private bool warnedMissing;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Debug.LogError("Duplicate ENVWorldProgress", this); enabled = false; return; }
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogError("[ENV World] Duplicate ENVWorldProgress in scene.", this);
+            enabled = false;
+            return;
+        }
         Instance = this;
     }
+
+    private void Start()
+    {
+        // ENVGem.OnEnable may run before this manager's Awake, depending on script order.
+        // Recollect currently active gem components to make the registration deterministic.
+        foreach (ENVGem gem in FindObjectsOfType<ENVGem>()) Register(gem);
+        ValidateSetup(true);
+    }
+
     private void OnDestroy() { if (Instance == this) Instance = null; }
 
     public void Register(ENVGem gem)
     {
-        if (gem == null || gems.Contains(gem)) return;
+        if (gem == null || !gem.isActiveAndEnabled || gems.Contains(gem)) return;
         gems.Add(gem);
+        SortGems();
+        warnedMissing = false;
+    }
+
+    public void Unregister(ENVGem gem)
+    {
+        if (gems.Remove(gem)) warnedMissing = false;
+    }
+
+    private void SortGems()
+    {
         gems.Sort((a, b) => a.sequenceIndex.CompareTo(b.sequenceIndex));
     }
-    public void Unregister(ENVGem gem) { gems.Remove(gem); }
+
+    private bool ValidateSetup(bool logWarning)
+    {
+        if (gems.Count != expectedGemCount)
+        {
+            if (logWarning && !warnedMissing)
+            {
+                Debug.LogWarning("[ENV World] Found " + gems.Count + "/" + expectedGemCount +
+                    " active registered gems. Set ENVGem on all seven real gemstones before testing E interactions.", this);
+                warnedMissing = true;
+            }
+            return false;
+        }
+
+        // Keep validation read-only. Register() is responsible for sorting.
+        for (int i = 0; i < expectedGemCount; i++)
+        {
+            ENVGem gem = gems[i];
+            if (gem == null || !gem.isActiveAndEnabled || gem.sequenceIndex != i)
+            {
+                if (logWarning)
+                    Debug.LogWarning("[ENV World] Invalid gem registration: indices must be unique 0.." +
+                        (expectedGemCount - 1) + ", and all gems must be enabled.", this);
+                return false;
+            }
+        }
+        return true;
+    }
 
     public ENVGem NextGem
     {
         get
         {
-            for (int i = 0; i < gems.Count; i++)
-                if (gems[i] != null && gems[i].isActiveAndEnabled && !gems[i].Activated) return gems[i];
+            if (!ValidateSetup(false)) return null;
+            foreach (ENVGem gem in gems)
+                if (gem != null && !gem.Activated) return gem;
             return null;
         }
     }
-    public bool CanActivate(ENVGem gem) { return gem != null && (!requireSequence || NextGem == gem); }
+
+    public bool CanActivate(ENVGem gem)
+    {
+        if (gem == null || completed || !ValidateSetup(false) || !gems.Contains(gem)) return false;
+        return !requireSequence || NextGem == gem;
+    }
+
     public void NotifyActivated(ENVGem gem)
     {
         GemActivated?.Invoke(gem);
-        if (completed || gems.Count == 0) return;
-        foreach (var g in gems) if (g != null && !g.Activated) return;
+        if (completed || !ValidateSetup(false) || gem == null) return;
+        // The full completion event is reserved exclusively for the final purple gem.
+        if (gem.sequenceIndex != expectedGemCount - 1) return;
+        foreach (ENVGem registered in gems)
+            if (registered == null || !registered.Activated) return;
         completed = true;
         StartCoroutine(FinishAfterColorReveal(gem));
     }
+
     private IEnumerator FinishAfterColorReveal(ENVGem lastGem)
     {
         if (lastGem != null) yield return new WaitForSeconds(lastGem.revealSeconds);
         if (completed && onAllGemsActivated != null) onAllGemsActivated.Invoke();
     }
+
     public void ResetProgress()
     {
         completed = false;
-        foreach (var g in gems) if (g != null) g.ResetGem();
+        foreach (ENVGem gem in gems) if (gem != null) gem.ResetGem();
     }
 }

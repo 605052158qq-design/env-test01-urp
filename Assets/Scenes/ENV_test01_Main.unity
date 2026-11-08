@@ -14121,8 +14121,6 @@ MonoBehaviour:
   walkClip: {fileID: -2676431796566317375, guid: 37029ccc3289351418fd20c6b8257cac, type: 3}
   touchClip: {fileID: -759533875647463723, guid: 724dc7d2e9d6b5142ac9ee73d63cccf9, type: 3}
   walkThreshold: 0.08
-  alignVisualToControllerBase: 0
-  visualGroundClearance: 0
 --- !u!1 &639191397 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6107295943720035358, guid: 816d5af8f46d82d40a745492e9ccf074, type: 3}

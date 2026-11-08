@@ -17,11 +17,6 @@ public sealed class ENVPlayerVisualAnimator : MonoBehaviour
     public AnimationClip walkClip;
     public AnimationClip touchClip;
     [Min(0f)] public float walkThreshold = 0.08f;
-    [Header("Visual grounding")]
-    [Tooltip("Aligns the imported model's lowest renderer point to the CharacterController base. Keeps collision and movement dimensions unchanged.")]
-    public bool alignVisualToControllerBase = true;
-    [Tooltip("Small visual-only height adjustment after automatic grounding, in metres.")]
-    public float visualGroundClearance = 0f;
 
     private AnimationClip activeClip;
     private float clipStartedAt;
@@ -33,7 +28,6 @@ public sealed class ENVPlayerVisualAnimator : MonoBehaviour
         if (characterController == null) characterController = GetComponent<CharacterController>();
         if (animationRoot == null && animator != null) animationRoot = animator.transform;
         if (animator != null) animator.enabled = false;
-        AlignVisualToControllerBase();
         SwitchTo(idleClip);
     }
 
@@ -72,31 +66,6 @@ public sealed class ENVPlayerVisualAnimator : MonoBehaviour
         if (touchClip == null) return;
         touchPlaying = true;
         SwitchTo(touchClip, true);
-    }
-
-    private void AlignVisualToControllerBase()
-    {
-        if (!alignVisualToControllerBase || animationRoot == null || characterController == null) return;
-
-        Renderer[] renderers = animationRoot.GetComponentsInChildren<Renderer>(true);
-        bool foundRenderer = false;
-        float visualBottom = 0f;
-        foreach (Renderer renderer in renderers)
-        {
-            if (renderer == null || renderer is ParticleSystemRenderer) continue;
-            float bottom = renderer.bounds.min.y;
-            if (!foundRenderer || bottom < visualBottom)
-            {
-                visualBottom = bottom;
-                foundRenderer = true;
-            }
-        }
-        if (!foundRenderer) return;
-
-        float controllerBottom = transform.position.y + characterController.center.y - characterController.height * 0.5f;
-        float offset = controllerBottom + visualGroundClearance - visualBottom;
-        if (Mathf.Abs(offset) > 0.0001f)
-            animationRoot.position += Vector3.up * offset;
     }
 
     private void SwitchTo(AnimationClip next, bool restart = false)

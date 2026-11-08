@@ -10,6 +10,9 @@ public sealed class ENVAudioBank : MonoBehaviour
     public AudioClip D_waterfall;
     public AudioClip E_campfire;
     public AudioClip F_gemTouch;
+    [Header("Menu UI")]
+    public AudioClip uiHover;
+    public AudioClip uiClick;
 
     public AudioClip Get(ENVAudioSlot slot)
     {

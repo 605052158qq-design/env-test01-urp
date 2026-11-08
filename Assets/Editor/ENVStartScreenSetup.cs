@@ -11,6 +11,7 @@ public static class ENVStartScreenSetup
     private const string Menu = "Tools/ENV Test01/13 - Install V1 Start Screen + Intro";
     private const string RootName = "ENV_StartScreen";
     private const string UiPath = "Assets/UI/";
+    private const string AudioPath = "Assets/ENVAudioPlaceholders/Clips/UI/";
 
     [MenuItem(Menu)]
     public static void Install()
@@ -56,15 +57,34 @@ public static class ENVStartScreenSetup
         ENVIntroCutscene cutscene = GetOrAdd<ENVIntroCutscene>(cutsceneObject);
         cutscene.Configure("潮声渐近……", "船正驶向微光码头");
 
+        ENVVideoSequence introSequence = Object.FindObjectOfType<ENVVideoSequence>(true);
+        if (introSequence == null)
+        {
+            GameObject introObject = new GameObject("IntroSequence");
+            introObject.AddComponent<VideoPlayer>();
+            introSequence = introObject.AddComponent<ENVVideoSequence>();
+        }
+        introSequence.suppliedVideo = AssetDatabase.LoadAssetAtPath<VideoClip>(UiPath + "开始剧情动画.mp4");
+        introSequence.targetCamera = Camera.main;
+        introSequence.playOnStart = false;
+
         screen.menuRoot = menu;
-        screen.introSequence = null;
+        screen.introSequence = introSequence;
         screen.introCutscene = cutscene;
         // Explicit UnityEngine qualification also keeps this static editor utility
         // independent from any project type named Object.
         screen.boatArrival = UnityEngine.Object.FindObjectOfType<ENVBoatArrival>(true);
+        if (screen.boatArrival != null)
+        {
+            screen.boatArrival.enabled = true;
+            screen.boatArrival.playOnStart = false;
+            EditorUtility.SetDirty(screen.boatArrival);
+        }
         screen.startHighlight = start;
         screen.continueHighlight = resume;
         screen.exitHighlight = exit;
+        screen.hoverAudio = AssetDatabase.LoadAssetAtPath<AudioClip>(AudioPath + "选定_ui(鼠标放置在ui上的声音).wav");
+        screen.clickAudio = AssetDatabase.LoadAssetAtPath<AudioClip>(AudioPath + "选定_ui点击ui的声音.wav");
         screen.gameplayInput = FindGameplayInput();
 
         EditorUtility.SetDirty(root);

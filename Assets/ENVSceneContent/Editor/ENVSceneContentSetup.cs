@@ -131,6 +131,10 @@ public sealed class ENVSceneContentSetup : EditorWindow
             region.restoredRegionName = RegionNames[i] + " · 已恢复";
             region.once = true;
             region.showSeconds = 2.2f;
+            if (RegionKeys[i] == "Forest")
+                region.ambientClip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/ENVAudioPlaceholders/Clips/环境/选定_森林环境声－鸟－昆虫.wav");
+            else if (RegionKeys[i] == "Snow")
+                region.ambientClip = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/ENVAudioPlaceholders/Clips/环境/选定_雪山风.wav");
             Save(go);
         }
         {

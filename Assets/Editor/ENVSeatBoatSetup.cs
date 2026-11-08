@@ -77,42 +77,29 @@ public static class ENVSeatBoatSetup
             EditorUtility.DisplayDialog("Wrong object", "Select the actual boat object, never the map root, or you will move the entire map.", "OK");
             return;
         }
-        GameObject playerRoot = ResolvePlayer();
-        if (playerRoot == null)
-        {
-            EditorUtility.DisplayDialog("Player missing", "Install L05/L06 on your existing L02/L03 player first using menu 06.", "OK");
-            return;
-        }
-        ENVPlayerInteraction actor = playerRoot.GetComponent<ENVPlayerInteraction>();
-        if (actor == null)
-        {
-            EditorUtility.DisplayDialog("Player component missing", "Run menu 06 before configuring the real boat.", "OK");
-            return;
-        }
-
         ENVBoatArrival arrival = boat.GetComponent<ENVBoatArrival>();
         if (arrival == null) arrival = Undo.AddComponent<ENVBoatArrival>(boat);
-        Transform board = MarkerChild(boat.transform, "PlayerOnBoat", new Vector3(0f, 0.8f, 0f), Quaternion.identity);
-        // The two dock markers are SCENE markers, NOT children of the moving boat.
+        // This is a SCENE marker, not a child of the moving boat.
         Transform dock = SceneMarker("BoatDockTarget", boat.transform.position + boat.transform.forward * 6f,
             boat.transform.rotation, boat.scene);
-        Transform landing = SceneMarker("PlayerLandingTarget", dock.position + dock.right * 2f + dock.forward * 1.5f,
-            dock.rotation, boat.scene);
+        GameObject player = ResolvePlayer();
+        Transform passengerAnchor = boat.GetComponentsInChildren<Transform>(true)
+            .FirstOrDefault(x => x.name == "BoatPassengerAnchor");
         Undo.RecordObject(arrival, "Configure boat arrival");
-        arrival.player = actor;
-        arrival.playerOnBoat = board;
         arrival.boatDockTarget = dock;
-        arrival.playerLandingTarget = landing;
+        arrival.passenger = player == null ? null : player.transform;
+        arrival.passengerAnchor = passengerAnchor;
+        arrival.detachPassengerAtDock = true;
         EditorUtility.SetDirty(arrival);
         Selection.activeGameObject = boat;
         Save();
-        Debug.Log("[ENV L06] Boat script added to YOUR real boat. Reposition PlayerOnBoat (deck), BoatDockTarget (where boat ends), PlayerLandingTarget (safe shore) before pressing Play. No second boat model was created.", boat);
+        Debug.Log("[ENV L06] Boat script added to YOUR real boat. During travel the player is frozen and parented to BoatPassengerAnchor without changing world position; the parent is restored at the dock. Move BoatDockTarget to choose where the boat stops.", boat);
     }
 
+    // Validation intentionally checks boat-only setup; the player is scene-authored.
     [MenuItem("Tools/ENV Test01/09 - Validate L05 L06 Scene References")]
     public static void Validate()
     {
-        ENVPlayerInteraction[] players = UnityEngine.Object.FindObjectsOfType<ENVPlayerInteraction>(true);
         ENVSeat[] seats = UnityEngine.Object.FindObjectsOfType<ENVSeat>(true);
         ENVBoatArrival[] boats = UnityEngine.Object.FindObjectsOfType<ENVBoatArrival>(true);
         int warnings = 0;
@@ -122,12 +109,12 @@ public static class ENVSeatBoatSetup
         }
         foreach (ENVBoatArrival b in boats)
         {
-            if (b.player == null || b.playerOnBoat == null || b.boatDockTarget == null || b.playerLandingTarget == null)
-            { warnings++; Debug.LogWarning("[ENV L06] Boat setup incomplete: " + b.name, b); }
+            if (b.boatDockTarget == null)
+            { warnings++; Debug.LogWarning("[ENV L06] Boat is missing BoatDockTarget: " + b.name, b); }
+            if (b.passenger == null || b.passengerAnchor == null)
+            { warnings++; Debug.LogWarning("[ENV L06] Boat passenger freeze needs both ENV_PrototypePlayer and BoatPassengerAnchor: " + b.name, b); }
         }
-        if (players.Length == 0) { warnings++; Debug.LogWarning("[ENV L05/L06] No player interaction installed. Run menu 06."); }
-        if (players.Length > 1) { warnings++; Debug.LogWarning("[ENV L05/L06] More than one player interaction active. Verify only one playable character is enabled."); }
-        Debug.Log("[ENV L05/L06] Scene check: player=" + players.Length + ", seat=" + seats.Length + ", boat=" + boats.Length + ", warnings=" + warnings + ". Check anchor positions manually before Play.");
+        Debug.Log("[ENV L05/L06] Scene check: seat=" + seats.Length + ", boat=" + boats.Length + ", warnings=" + warnings + ". Place the player on the boat deck before Play; the crossing will freeze and attach it automatically.");
     }
 
     private static GameObject ResolvePlayer()

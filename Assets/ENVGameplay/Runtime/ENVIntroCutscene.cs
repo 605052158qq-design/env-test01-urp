@@ -16,6 +16,7 @@ public sealed class ENVIntroCutscene : MonoBehaviour
     private string firstCaption = "潮声渐近……";
     private string secondCaption = "船正驶向微光码头";
     private bool playing;
+    public bool IsPlaying { get { return playing; } }
 
     public void Configure(string first, string second)
     {
@@ -38,6 +39,14 @@ public sealed class ENVIntroCutscene : MonoBehaviour
         StartCoroutine(Run());
     }
 
+    /// <summary>Skips the fallback caption transition and performs its normal handoff.</summary>
+    public void Skip()
+    {
+        if (!playing) return;
+        StopAllCoroutines();
+        Finish();
+    }
+
     private IEnumerator Run()
     {
         playing = true;
@@ -47,7 +56,13 @@ public sealed class ENVIntroCutscene : MonoBehaviour
         caption.text = secondCaption;
         yield return new WaitForSeconds(captionSeconds);
         yield return Fade(1f, 0f);
+        Finish();
+    }
+
+    private void Finish()
+    {
         playing = false;
+        if (group != null) group.alpha = 0f;
         gameObject.SetActive(false);
         if (onComplete != null) onComplete.Invoke();
     }

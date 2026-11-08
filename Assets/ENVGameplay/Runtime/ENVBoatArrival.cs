@@ -4,43 +4,43 @@ using UnityEngine.Events;
 
 /// <summary>
 /// L06: Add to the REAL boat root; it moves that very same art object into the dock.
-/// No prototype boat prefab or separate proxy renderer. Use existing player & camera.
+/// A passenger may be attached to a deck anchor only while the boat travels.
+/// The passenger's world position and rotation are preserved; input/physics are
+/// frozen through ENVPlayerInteraction so the CharacterController cannot fight
+/// the moving hierarchy.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class ENVBoatArrival : MonoBehaviour
 {
-    [Header("Use the existing objects / only empty positional markers are created")]
-    public ENVPlayerInteraction player;
-    public Transform playerOnBoat;
+    [Header("Use the existing boat and a scene target marker")]
     public Transform boatDockTarget;
-    public Transform playerLandingTarget;
+
+    [Header("Optional passenger freeze during the crossing")]
+    [Tooltip("The existing player root. It is never moved or rotated by this script.")]
+    public Transform passenger;
+    [Tooltip("A child of the real boat, normally BoatPassengerAnchor, where the player is parented during travel.")]
+    public Transform passengerAnchor;
+    [Tooltip("Return the player to its original scene container after the boat has stopped.")]
+    public bool detachPassengerAtDock = true;
 
     [Header("Sequence")]
     public bool playOnStart = true;
     [Min(0.05f)] public float approachSeconds = 5f;
     [Min(0f)] public float pauseAtDockSeconds = 0.5f;
-    [Min(0.05f)] public float walkOffSeconds = 1.2f;
     public AnimationCurve motionCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-    [Tooltip("V1 keeps the player on the dock. Enable only when final boarding animation/anchors are authored.")]
-    public bool movePlayerWithBoat = false;
-    [Tooltip("During arrival, show the real moving boat instead of leaving the camera at the dock.")]
-    public bool focusCameraOnBoat = true;
-    [Min(1f)] public float arrivalCameraDistance = 10f;
     [Header("Event")]
     public UnityEvent onArrivalComplete;
 
     private bool playing;
-    private Transform originalPlayerParent;
-    private ENVPrototypeOrbitCamera orbitCamera;
-    private Transform originalCameraTarget;
-    private float originalCameraDistance;
+    private ENVPlayerInteraction passengerInteraction;
+    private Transform passengerOriginalParent;
+    private bool passengerRideStarted;
     public bool IsPlaying { get { return playing; } }
     public bool CanPlay
     {
         get
         {
-            return boatDockTarget != null &&
-                   (!movePlayerWithBoat || (player != null && playerOnBoat != null && playerLandingTarget != null));
+            return boatDockTarget != null;
         }
     }
 
@@ -59,10 +59,9 @@ public sealed class ENVBoatArrival : MonoBehaviour
     public void PlayArrival()
     {
         if (playing) return;
-        if (player == null) player = FindObjectOfType<ENVPlayerInteraction>();
         if (!CanPlay)
         {
-            Debug.LogWarning("[ENV L06] Select a real boat and assign the existing player and all three markers.", this);
+            Debug.LogWarning("[ENV L06] Assign BoatDockTarget on the real boat before playing.", this);
             return;
         }
         StartCoroutine(RunArrival());
@@ -71,51 +70,10 @@ public sealed class ENVBoatArrival : MonoBehaviour
     private IEnumerator RunArrival()
     {
         playing = true;
-        BeginArrivalCamera();
-        if (!movePlayerWithBoat)
-        {
-            yield return MoveBoatToDock();
-            EndArrivalCamera();
-            playing = false;
-            if (onArrivalComplete != null) onArrivalComplete.Invoke();
-            yield break;
-        }
-
-        if (player == null || !player.BeginBoatRide())
-        {
-            EndArrivalCamera();
-            playing = false;
-            yield break;
-        }
-        Transform actor = player.transform;
-        Transform oldParent = actor.parent;
-        originalPlayerParent = oldParent;
-
-        // CharacterController and movement script are disabled by BeginBoatRide().
-        actor.SetParent(transform, true);
-        actor.SetPositionAndRotation(playerOnBoat.position, playerOnBoat.rotation);
-
+        BeginPassengerRide();
         yield return MoveBoatToDock();
         if (pauseAtDockSeconds > 0f) yield return new WaitForSeconds(pauseAtDockSeconds);
-
-        actor.SetParent(oldParent, true);
-        player.StartDisembarking();
-        Vector3 from = actor.position;
-        Quaternion rotationFrom = actor.rotation;
-        Vector3 to = playerLandingTarget.position;
-        Quaternion rotationTo = playerLandingTarget.rotation;
-        float elapsed = 0f;
-        while (elapsed < walkOffSeconds)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / walkOffSeconds);
-            actor.SetPositionAndRotation(Vector3.Lerp(from, to, t), Quaternion.Slerp(rotationFrom, rotationTo, t));
-            yield return null;
-        }
-        actor.SetPositionAndRotation(to, rotationTo);
-        player.EndBoatRide();
-        originalPlayerParent = null;
-        EndArrivalCamera();
+        EndPassengerRide();
         playing = false;
         if (onArrivalComplete != null) onArrivalComplete.Invoke();
     }
@@ -138,52 +96,74 @@ public sealed class ENVBoatArrival : MonoBehaviour
         transform.SetPositionAndRotation(endPosition, startRotation);
     }
 
-    private void BeginArrivalCamera()
+    private void BeginPassengerRide()
     {
-        if (!focusCameraOnBoat) return;
-        orbitCamera = FindObjectOfType<ENVPrototypeOrbitCamera>(true);
-        if (orbitCamera == null) return;
-        originalCameraTarget = orbitCamera.target;
-        originalCameraDistance = orbitCamera.distance;
-        orbitCamera.target = transform;
-        orbitCamera.distance = arrivalCameraDistance;
-        orbitCamera.enabled = true;
+        // Scene edits can be unsaved while testing. Resolve the intended existing
+        // objects as a safe fallback instead of requiring a scene reload.
+        if (passenger == null)
+        {
+            ENVPlayerInteraction foundPassenger = FindObjectOfType<ENVPlayerInteraction>(true);
+            if (foundPassenger != null) passenger = foundPassenger.transform;
+        }
+        if (passengerAnchor == null)
+        {
+            Transform[] deckChildren = GetComponentsInChildren<Transform>(true);
+            foreach (Transform child in deckChildren)
+            {
+                if (child.name == "BoatPassengerAnchor")
+                {
+                    passengerAnchor = child;
+                    break;
+                }
+            }
+        }
+        if (passenger == null) return;
+
+        passengerInteraction = passenger.GetComponent<ENVPlayerInteraction>();
+        if (passengerInteraction != null && !passengerInteraction.BeginBoatRide())
+        {
+            Debug.LogWarning("[ENV L06] Passenger is not free to board; boat will travel without freezing the player.", passenger);
+            passengerInteraction = null;
+            return;
+        }
+
+        passengerOriginalParent = passenger.parent;
+        if (passengerAnchor == null)
+        {
+            Debug.LogWarning("[ENV L06] Assign BoatPassengerAnchor to keep the passenger stable during boat travel.", this);
+        }
+        else if (passenger.parent != passengerAnchor)
+        {
+            // worldPositionStays avoids a visible teleport or any rotation change.
+            passenger.SetParent(passengerAnchor, true);
+        }
+        passengerRideStarted = true;
     }
 
-    private void EndArrivalCamera()
+    private void EndPassengerRide()
     {
-        if (orbitCamera == null) return;
-        orbitCamera.target = originalCameraTarget;
-        orbitCamera.distance = originalCameraDistance;
-        orbitCamera = null;
+        if (!passengerRideStarted) return;
+        if (passenger != null && detachPassengerAtDock)
+            passenger.SetParent(passengerOriginalParent, true);
+        if (passengerInteraction != null) passengerInteraction.EndBoatRide();
+        passengerInteraction = null;
+        passengerOriginalParent = null;
+        passengerRideStarted = false;
     }
 
     private void OnDisable()
     {
-        // If the boat is disabled mid-cutscene, do not leave movement permanently locked.
-        if (!playing || player == null) return;
-        if (movePlayerWithBoat)
-        {
-            player.transform.SetParent(originalPlayerParent, true);
-            player.EndBoatRide();
-        }
-        originalPlayerParent = null;
-        EndArrivalCamera();
+        EndPassengerRide();
         playing = false;
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         if (boatDockTarget != null)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, boatDockTarget.position);
             Gizmos.DrawWireSphere(boatDockTarget.position, 0.35f);
-        }
-        if (playerLandingTarget != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(playerLandingTarget.position, 0.3f);
         }
     }
 }

@@ -73,6 +73,8 @@ MonoBehaviour:
   onRestored:
     m_PersistentCalls:
       m_Calls: []
+  ambientClip: {fileID: 8300000, guid: 1a46991fcefdb094aa6fd62cff932062, type: 3}
+  ambientVolume: 0.5
   player: {fileID: 0}
   once: 1
   showSeconds: 2.2

@@ -44,9 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad049eb155119554d9402f2815efcf57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  A_backgroundMusic: {fileID: 8300000, guid: d310388b681a8c044930e9d3468e98c6, type: 3}
-  B_footstep: {fileID: 8300000, guid: 38ce2359db7832c4fbe9b8f57cbb0f1b, type: 3}
-  C_water: {fileID: 8300000, guid: fe8f219d5104f4b44806d0cdc3b18cc8, type: 3}
-  D_waterfall: {fileID: 8300000, guid: fa4ba2a506ab4524190480f35cad7854, type: 3}
-  E_campfire: {fileID: 8300000, guid: 8e4a6d618428c384d94387d62c5b842d, type: 3}
-  F_gemTouch: {fileID: 8300000, guid: 72a3279f2d03e164db86c776047b66de, type: 3}
+  A_backgroundMusic: {fileID: 8300000, guid: 0fb488c0ac3c69845b490e50407fde4b, type: 3}
+  B_footstep: {fileID: 8300000, guid: 50d888c442f69ec47a49fb5130ba1f63, type: 3}
+  C_water: {fileID: 8300000, guid: 8f94e9101750b3a4ab90aced25722623, type: 3}
+  D_waterfall: {fileID: 8300000, guid: 712cb2c4a2d09924dae84694573e815f, type: 3}
+  E_campfire: {fileID: 8300000, guid: cbd890f55e0ce294a8026e154f56abbe, type: 3}
+  F_gemTouch: {fileID: 8300000, guid: f4dcbdf19bda9814a839e6c06441357e, type: 3}
+  uiHover: {fileID: 8300000, guid: 2b27d4db8f13c5143af74fddfcf36f75, type: 3}
+  uiClick: {fileID: 8300000, guid: db93ee1c819bf9445b1c9990706cb833, type: 3}

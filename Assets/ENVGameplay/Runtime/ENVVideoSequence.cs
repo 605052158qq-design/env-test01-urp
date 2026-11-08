@@ -13,6 +13,7 @@ public sealed class ENVVideoSequence : MonoBehaviour
     public UnityEvent onComplete;
     private VideoPlayer player;
     private bool busy;
+    public bool IsPlaying { get { return busy; } }
 
     private void Awake()
     {
@@ -36,6 +37,12 @@ public sealed class ENVVideoSequence : MonoBehaviour
         player.clip = suppliedVideo;
         player.targetCamera = targetCamera != null ? targetCamera : Camera.main;
         player.Play();
+    }
+
+    /// <summary>Ends the current video and invokes the usual completion handoff.</summary>
+    public void Skip()
+    {
+        if (busy) Finish();
     }
     private void OnVideoFinished(VideoPlayer vp) { Finish(); }
     private void OnVideoError(VideoPlayer vp, string message)

@@ -20,6 +20,11 @@ public sealed class ENVRegionTrigger : MonoBehaviour
     public string restoredRegionName = "微光码头 · 已恢复";
     public UnityEvent onRestored;
 
+    [Header("Region ambient audio")]
+    [Tooltip("A looping 2D ambience that plays only while the player is inside this region.")]
+    public AudioClip ambientClip;
+    [Range(0f, 1f)] public float ambientVolume = 0.5f;
+
     public Transform player;
     public bool once = true;
     public float showSeconds = 2.2f;
@@ -28,11 +33,21 @@ public sealed class ENVRegionTrigger : MonoBehaviour
     private bool wasInside;
     private BoxCollider box;
     private bool subscribed;
+    private AudioSource ambientSource;
 
     private void Awake()
     {
         box = GetComponent<BoxCollider>();
         box.isTrigger = true;
+        if (ambientClip == null) return;
+        ambientSource = GetComponent<AudioSource>();
+        if (ambientSource == null) ambientSource = gameObject.AddComponent<AudioSource>();
+        ambientSource.playOnAwake = false;
+        ambientSource.clip = ambientClip;
+        ambientSource.loop = true;
+        ambientSource.volume = ambientVolume;
+        ambientSource.spatialBlend = 0f;
+        ambientSource.dopplerLevel = 0f;
     }
 
     private void Start()
@@ -53,6 +68,8 @@ public sealed class ENVRegionTrigger : MonoBehaviour
 
     private void OnDisable()
     {
+        if (ambientSource != null) ambientSource.Stop();
+        wasInside = false;
         if (!subscribed) return;
         foreach (ENVGem gem in RestorationGems()) gem.onActivated.RemoveListener(OnRestorationGemActivated);
         subscribed = false;
@@ -63,12 +80,23 @@ public sealed class ENVRegionTrigger : MonoBehaviour
         if (player == null || box == null) return;
         // Explicit bounds test also works when no Rigidbody is present on this marker.
         bool inside = box.bounds.Contains(player.position + Vector3.up * 0.5f);
-        if (inside && !wasInside) Fire();
+        if (inside && !wasInside) EnterRegion();
+        else if (!inside && wasInside) ExitRegion();
         wasInside = inside;
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (player != null && (other.transform == player || other.transform.IsChildOf(player))) Fire();
+        if (player != null && (other.transform == player || other.transform.IsChildOf(player))) EnterRegion();
+    }
+    private void EnterRegion()
+    {
+        Fire();
+        if (ambientSource != null && ambientSource.clip != null && !ambientSource.isPlaying)
+            ambientSource.Play();
+    }
+    private void ExitRegion()
+    {
+        if (ambientSource != null) ambientSource.Stop();
     }
     private void Fire()
     {

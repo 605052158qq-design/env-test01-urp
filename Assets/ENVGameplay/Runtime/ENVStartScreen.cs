@@ -1,5 +1,3 @@
-using System.Collections;
-using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -24,6 +22,13 @@ public sealed class ENVStartScreen : MonoBehaviour
     public Image continueHighlight;
     public Image exitHighlight;
 
+    [Header("Menu audio")]
+    [Tooltip("Played once when the pointer enters a menu action.")]
+    public AudioClip hoverAudio;
+    [Tooltip("Played when Start, Continue, or Exit is clicked.")]
+    public AudioClip clickAudio;
+    [Range(0f, 1f)] public float menuAudioVolume = 0.65f;
+
     // Normalized screen rectangles. They match the supplied 1920x1080 menu
     // composition and deliberately keep the clickable regions independent of
     // the full-screen source PNGs.
@@ -35,9 +40,23 @@ public sealed class ENVStartScreen : MonoBehaviour
     private bool introPending;
     private bool worldPaused;
     private float timeScaleBeforeMenu = 1f;
+    private AudioSource menuAudioSource;
+    private int hoveredAction;
 
     private void Awake()
     {
+        menuAudioSource = GetComponent<AudioSource>();
+        if (menuAudioSource == null) menuAudioSource = gameObject.AddComponent<AudioSource>();
+        menuAudioSource.playOnAwake = false;
+        menuAudioSource.spatialBlend = 0f;
+        menuAudioSource.loop = false;
+        ENVAudioBank audioBank = FindObjectOfType<ENVAudioBank>(true);
+        if (audioBank != null)
+        {
+            if (hoverAudio == null) hoverAudio = audioBank.uiHover;
+            if (clickAudio == null) clickAudio = audioBank.uiClick;
+        }
+
         if (introSequence != null)
             introSequence.onComplete.AddListener(BeginBoatArrival);
         if (introCutscene != null)
@@ -47,16 +66,7 @@ public sealed class ENVStartScreen : MonoBehaviour
         ShowMenu();
     }
 
-    private IEnumerator Start()
-    {
-#if UNITY_EDITOR
-        // This is editor-only evidence for the iteration checklist. It never runs
-        // in a player build and records the actual Game view after the Canvas is drawn.
-        yield return CaptureValidationFrame("v1-l10-start-screen.png");
-#else
-        yield break;
-#endif
-    }
+
 
     private void OnDestroy()
     {
@@ -72,6 +82,21 @@ public sealed class ENVStartScreen : MonoBehaviour
 
     private void Update()
     {
+        // Escape skips only an active opening video/caption. It does not skip the
+        // boat crossing or restore player input early.
+        if (introPending && Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (introSequence != null && introSequence.IsPlaying)
+            {
+                introSequence.Skip();
+                return;
+            }
+            if (introCutscene != null && introCutscene.IsPlaying)
+            {
+                introCutscene.Skip();
+                return;
+            }
+        }
         if (menuRoot == null || !menuRoot.activeSelf) return;
 
         Vector2 pointer = new Vector2(
@@ -80,6 +105,10 @@ public sealed class ENVStartScreen : MonoBehaviour
         bool overStart = startRegion.Contains(pointer);
         bool overContinue = continueRegion.Contains(pointer);
         bool overExit = exitRegion.Contains(pointer);
+        int currentHoveredAction = overStart ? 1 : overContinue ? 2 : overExit ? 3 : 0;
+        if (currentHoveredAction != 0 && currentHoveredAction != hoveredAction)
+            PlayMenuAudio(hoverAudio);
+        hoveredAction = currentHoveredAction;
         SetHighlight(startHighlight, overStart);
         SetHighlight(continueHighlight, overContinue);
         SetHighlight(exitHighlight, overExit);
@@ -87,10 +116,12 @@ public sealed class ENVStartScreen : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) ||
             (Input.GetMouseButtonDown(0) && (overStart || overContinue)))
         {
+            if (Input.GetMouseButtonDown(0)) PlayMenuAudio(clickAudio);
             BeginGame();
         }
         else if (Input.GetMouseButtonDown(0) && overExit)
         {
+            PlayMenuAudio(clickAudio);
             QuitGame();
         }
     }
@@ -98,6 +129,7 @@ public sealed class ENVStartScreen : MonoBehaviour
     public void ShowMenu()
     {
         introPending = false;
+        hoveredAction = 0;
         if (menuRoot != null) menuRoot.SetActive(true);
         SetGameplayInput(false);
         SetWorldVisible(false);
@@ -110,11 +142,16 @@ public sealed class ENVStartScreen : MonoBehaviour
         if (menuRoot != null) menuRoot.SetActive(false);
         ResumeWorld();
         SetWorldVisible(true);
-#if UNITY_EDITOR
-        StartCoroutine(CaptureValidationFrame("v1-l10-after-start.png"));
-#endif
+
         // The supplied 4K clip is the menu background, not an intro movie.
-        // This short placeholder cinematic intentionally gives L06 a clear handoff.
+        // Prefer the authored gameplay intro; retain the caption card as a fallback
+        // while a project is being assembled without its video asset.
+        if (introSequence != null && introSequence.suppliedVideo != null)
+        {
+            introPending = true;
+            introSequence.Play();
+            return;
+        }
         if (introCutscene != null)
         {
             introPending = true;
@@ -137,6 +174,11 @@ public sealed class ENVStartScreen : MonoBehaviour
         if (boatArrival != null && boatArrival.CanPlay)
         {
             introPending = true;
+            // The video used CameraNearPlane, so it never needs a camera handoff.
+            // Resume only the orbit camera now; player input remains frozen by the
+            // boat passenger ride until arrival completes.
+            ENVPrototypeOrbitCamera orbitCamera = FindObjectOfType<ENVPrototypeOrbitCamera>(true);
+            if (orbitCamera != null) orbitCamera.enabled = true;
             boatArrival.PlayArrival();
             return;
         }
@@ -217,13 +259,11 @@ public sealed class ENVStartScreen : MonoBehaviour
             target.gameObject.SetActive(enabled);
     }
 
-#if UNITY_EDITOR
-    private static IEnumerator CaptureValidationFrame(string fileName)
+    private void PlayMenuAudio(AudioClip clip)
     {
-        yield return new WaitForEndOfFrame();
-        string folder = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "ValidationScreenshots");
-        Directory.CreateDirectory(folder);
-        ScreenCapture.CaptureScreenshot(Path.Combine(folder, fileName));
+        if (menuAudioSource != null && clip != null)
+            menuAudioSource.PlayOneShot(clip, menuAudioVolume);
     }
-#endif
+
+
 }

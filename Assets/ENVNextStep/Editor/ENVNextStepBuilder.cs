@@ -7,7 +7,6 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.Video;
 
 /// <summary>
 /// Explicit editor actions only: never modifies your existing map on import/recompile.
@@ -26,11 +25,10 @@ public static class ENVNextStepBuilder
         EnsureFolder(Root + "/Profiles");
         MakeAirWallPrefab();
         MakeSnowPrefab();
-        MakeEndingPrefab();
         MakePostVolumes();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log("[ENV Next Step] Generated air wall, snow zone, ending and five local post-FX prefabs under " + Root);
+        Debug.Log("[ENV Next Step] Generated air wall, snow zone, and five local post-FX prefabs under " + Root);
     }
 
     [MenuItem("Tools/ENV Next Step/01 - Rebuild Selected Air Wall Colliders")]
@@ -90,31 +88,6 @@ public static class ENVNextStepBuilder
             count++;
         }
         return count;
-    }
-
-    [MenuItem("Tools/ENV Next Step/05 - Ensure Existing Ending Event Is Connected")]
-    public static void EnsureEnding()
-    {
-        var all = UnityEngine.Object.FindObjectsOfType<ENVEndSequenceOnCompletion>(true);
-        ENVEndSequenceOnCompletion ending = all.Length > 0 ? all[0] : null;
-        if (ending == null)
-        {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/Prefabs/PF_ENV_EndSequence.prefab");
-            if (prefab == null) { GeneratePrefabs(); prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/Prefabs/PF_ENV_EndSequence.prefab"); }
-            if (prefab != null)
-            {
-                GameObject go = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
-                if (go != null) { Undo.RegisterCreatedObjectUndo(go,"Create ending manager"); ending = go.GetComponent<ENVEndSequenceOnCompletion>(); }
-            }
-        }
-        if (ending == null) return;
-        Undo.RecordObject(ending,"Connect ending sequence");
-        if (ending.world == null) ending.world = UnityEngine.Object.FindObjectOfType<ENVWorldProgress>(true);
-        if (ending.endingVideo == null) ending.endingVideo = ending.GetComponent<ENVVideoSequence>();
-        EditorUtility.SetDirty(ending);
-        EditorSceneManager.MarkSceneDirty(ending.gameObject.scene);
-        Selection.activeGameObject = ending.gameObject;
-        Debug.Log("[ENV Ending] Connected existing ending event. Drag customer END VideoClip into ENVVideoSequence.suppliedVideo. The last gem triggers via ENVWorldProgress.onAllGemsActivated.");
     }
 
     private static void EnsureFolder(string path)
@@ -194,16 +167,6 @@ public static class ENVNextStepBuilder
         if (m != null) renderer.sharedMaterial = m;
         area.snowEffect = particles;
         SavePrefabOnce(root,"PF_ENVSnowArea");
-    }
-    private static void MakeEndingPrefab()
-    {
-        GameObject root = new GameObject("PF_ENV_EndSequence");
-        root.AddComponent<VideoPlayer>();
-        var video = root.AddComponent<ENVVideoSequence>();
-        video.playOnStart = false;
-        var ending = root.AddComponent<ENVEndSequenceOnCompletion>();
-        ending.endingVideo = video;
-        SavePrefabOnce(root,"PF_ENV_EndSequence");
     }
     private static VolumeProfile CreateProfile(string id, float exposure,float saturation,float contrast,float bloom,float temperature,float vignette)
     {

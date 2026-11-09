@@ -30911,7 +30911,6 @@ GameObject:
   - component: {fileID: 1695765098}
   - component: {fileID: 1695765097}
   - component: {fileID: 1695765101}
-  - component: {fileID: 1695765102}
   - component: {fileID: 1695765103}
   m_Layer: 0
   m_Name: ENV_GameplaySystems
@@ -31003,26 +31002,6 @@ MonoBehaviour:
   endingVideo: {fileID: 0}
   titleUi: {fileID: 1695765098}
   completionMessage: "\u4E03\u8272\u5B9D\u77F3\u5DF2\u5F52\u4F4D \xB7 \u5FAE\u5149\u5C0F\u9547\u6062\u590D\u8272\u5F69"
---- !u!114 &1695765102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1695765095}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3cfc2f53583a43a091ad8c7b2b75849a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  visibleInPlayerBuild: 0
-  panelVisible: 1
-  world: {fileID: 0}
-  titleUi: {fileID: 0}
-  player: {fileID: 0}
-  fairyTrigger: {fileID: 0}
-  fairy: {fileID: 0}
-  ending: {fileID: 0}
 --- !u!114 &1695765103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36999,63 +36978,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3701063039205462756, guid: 816d5af8f46d82d40a745492e9ccf074, type: 3}
---- !u!1001 &2030610014
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6557082378270860698, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8301711142675427613, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
-      propertyPath: m_Name
-      value: PF_ENV_EndSequence
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 81356eade4818bb4a8159b6f2261569f, type: 3}
 --- !u!1 &2034921226 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8819255421323562737, guid: 816d5af8f46d82d40a745492e9ccf074, type: 3}
@@ -38768,6 +38690,5 @@ SceneRoots:
   - {fileID: 147851161}
   - {fileID: 562611046}
   - {fileID: 1105715485}
-  - {fileID: 2030610014}
   - {fileID: 511558924}
   - {fileID: 1783290725}

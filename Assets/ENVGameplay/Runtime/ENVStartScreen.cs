@@ -229,8 +229,6 @@ public sealed class ENVStartScreen : MonoBehaviour
         // otherwise its Start/trigger callbacks can expose “微光码头” before play begins.
         foreach (ENVRegionTrigger trigger in FindObjectsOfType<ENVRegionTrigger>(true))
             trigger.enabled = enabled;
-        foreach (ENVVerticalSliceRunner runner in FindObjectsOfType<ENVVerticalSliceRunner>(true))
-            runner.enabled = enabled;
         foreach (ENVObjectivePointer objectivePointer in FindObjectsOfType<ENVObjectivePointer>(true))
             objectivePointer.enabled = enabled;
     }

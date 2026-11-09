@@ -15,7 +15,9 @@ using UnityEngine.SceneManagement;
 public static class ENVNamedInteractionSetup
 {
     private const string Menu = "Tools/ENV Test01/11 - Attach Named INT Components";
-    private const string AutoSetupSessionKey = "ENV.NamedInteractionSetup.AutoApplied.v1";
+    // Bump when the required named-object setup changes so the current editor
+    // session re-audits existing scenes after scripts reload.
+    private const string AutoSetupSessionKey = "ENV.NamedInteractionSetup.AutoApplied.v4";
     private static readonly Regex NumericSuffix = new Regex(@"_(\d+)$", RegexOptions.Compiled);
 
     [InitializeOnLoadMethod]
@@ -30,9 +32,9 @@ public static class ENVNamedInteractionSetup
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode || SessionState.GetBool(AutoSetupSessionKey, false)) return;
         Transform root = ResolveMapRoot();
-        if (root == null || !HasMissingSupportedComponents(root)) return;
+        if (root == null || !HasMissingSeatComponents(root)) return;
         SessionState.SetBool(AutoSetupSessionKey, true);
-        AttachNamedComponents();
+        AttachMissingSeats(root);
     }
 
     [MenuItem(Menu)]
@@ -175,6 +177,10 @@ public static class ENVNamedInteractionSetup
 
     private static Transform ResolveMapRoot()
     {
+        // The scene's named interactables are children of MapRoot.  The imported
+        // all_mingming object is a sibling, so starting there silently finds none.
+        GameObject mapRoot = GameObject.Find("MapRoot");
+        if (mapRoot != null) return mapRoot.transform;
         GameObject named = GameObject.Find("all_mingming");
         if (named != null) return named.transform;
         Transform selected = Selection.activeTransform;
@@ -194,7 +200,11 @@ public static class ENVNamedInteractionSetup
             string name = target.name;
             if (name.StartsWith("INT_yizi_", StringComparison.Ordinal) || name.StartsWith("INT_muzhuang_", StringComparison.Ordinal))
             {
-                if (target.GetComponent<ENVInteractionIdentity>() == null || target.GetComponent<ENVSeat>() == null) return true;
+                ENVSeat seat = target.GetComponent<ENVSeat>();
+                if (target.GetComponent<ENVInteractionIdentity>() == null ||
+                    seat == null ||
+                    seat.sitPoint == null ||
+                    seat.exitPoint == null) return true;
             }
             else if (name.StartsWith("INT_baoshi_", StringComparison.Ordinal))
             {
@@ -206,6 +216,45 @@ public static class ENVNamedInteractionSetup
             }
         }
         return false;
+    }
+
+    private static bool HasMissingSeatComponents(Transform root)
+    {
+        foreach (Transform target in root.GetComponentsInChildren<Transform>(true))
+        {
+            string name = target.name;
+            if (!name.StartsWith("INT_yizi_", StringComparison.Ordinal) &&
+                !name.StartsWith("INT_muzhuang_", StringComparison.Ordinal)) continue;
+
+            ENVSeat seat = target.GetComponent<ENVSeat>();
+            if (target.GetComponent<ENVInteractionIdentity>() == null ||
+                seat == null || seat.sitPoint == null || seat.exitPoint == null) return true;
+        }
+        return false;
+    }
+
+    private static void AttachMissingSeats(Transform root)
+    {
+        int configured = 0;
+        foreach (Transform target in root.GetComponentsInChildren<Transform>(true))
+        {
+            string name = target.name;
+            if (!name.StartsWith("INT_yizi_", StringComparison.Ordinal) &&
+                !name.StartsWith("INT_muzhuang_", StringComparison.Ordinal)) continue;
+
+            ENVSeat seat = target.GetComponent<ENVSeat>();
+            if (target.GetComponent<ENVInteractionIdentity>() != null &&
+                seat != null && seat.sitPoint != null && seat.exitPoint != null) continue;
+
+            ConfigureSeat(target.gameObject, name);
+            configured++;
+        }
+
+        if (configured == 0) return;
+        Scene scene = SceneManager.GetActiveScene();
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log($"[ENV INT] Auto-configured {configured} named chair/stump seat(s).", root);
     }
 
     private static Transform MarkerChild(Transform parent, string name, Vector3 localPosition)

@@ -1,0 +1,368 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// A self-contained minimap for the prototype scene.  It crops the supplied
+/// square map illustration through a real Unity UI Mask, then converts world
+/// X/Z positions into map coordinates for the player and next gem objective.
+/// </summary>
+[DisallowMultipleComponent]
+public sealed class ENVMinimap : MonoBehaviour
+{
+    [Header("Map asset")]
+    [Tooltip("The square map illustration shown under the circular UI mask.")]
+    public Texture2D mapTexture;
+
+    [Header("Scene references (optional; resolved automatically when empty)")]
+    public Transform player;
+    public Camera targetCamera;
+    public Transform mapRoot;
+    [Tooltip("World-space dock marker that calibrates the artwork to the real scene.")]
+    public Transform dockAnchor;
+
+    [Header("Layout")]
+    [Range(140f, 420f)] public float mapDiameter = 224f;
+    [Range(0.02f, 0.20f)] public float edgePadding = 0.075f;
+    public Vector2 screenOffset = new Vector2(32f, -30f);
+    [Tooltip("The illustrated dock's location in the source map, measured from bottom-left.")]
+    public Vector2 dockMapPosition = new Vector2(0.62f, 0.145f);
+
+    private RectTransform mapRect;
+    private RectTransform playerMarker;
+    private RectTransform objectiveMarker;
+    private Text statusLabel;
+    private Canvas uiCanvas;
+    private ENVStartScreen startScreen;
+    private ENVBoatArrival boatArrival;
+    private Bounds worldBounds;
+    private bool hasWorldBounds;
+    private Sprite circleSprite;
+    private Sprite arrowSprite;
+    private Sprite objectiveSprite;
+
+    private void Awake()
+    {
+        ResolveReferences();
+        BuildUi();
+        RefreshWorldBounds();
+    }
+
+    private void OnEnable()
+    {
+        if (mapRect == null) BuildUi();
+    }
+
+    private void LateUpdate()
+    {
+        if (player == null) ResolveReferences();
+        if (!hasWorldBounds) RefreshWorldBounds();
+        if (mapRect == null || !hasWorldBounds) return;
+
+        // BeginGame hides menuRoot before the pre-roll/video/boat sequence
+        // begins, so menu visibility alone is not enough.  The minimap waits
+        // for the boat's arrival-complete signal before appearing.
+        if (startScreen == null) startScreen = FindObjectOfType<ENVStartScreen>(true);
+        if (boatArrival == null) boatArrival = FindObjectOfType<ENVBoatArrival>(true);
+        bool menuIsOpen = startScreen != null && startScreen.menuRoot != null && startScreen.menuRoot.activeInHierarchy;
+        bool arrivalFinished = boatArrival == null || !boatArrival.CanPlay || boatArrival.HasArrived;
+        bool shouldShow = !menuIsOpen && arrivalFinished;
+        if (uiCanvas != null) uiCanvas.enabled = shouldShow;
+        if (!shouldShow) return;
+
+        UpdatePlayerMarker();
+        UpdateObjectiveMarker();
+        UpdateStatus();
+    }
+
+    [ContextMenu("Refresh Map Bounds")]
+    public void RefreshWorldBounds()
+    {
+        Transform root = mapRoot;
+        if (root == null)
+        {
+            GameObject mapRootObject = GameObject.Find("MapRoot");
+            root = mapRootObject != null ? mapRootObject.transform : null;
+        }
+
+        Renderer[] renderers = root != null
+            ? root.GetComponentsInChildren<Renderer>(true)
+            : FindObjectsOfType<Renderer>();
+
+        hasWorldBounds = false;
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer == null || !renderer.enabled || renderer is ParticleSystemRenderer) continue;
+            if (!hasWorldBounds)
+            {
+                worldBounds = renderer.bounds;
+                hasWorldBounds = true;
+            }
+            else worldBounds.Encapsulate(renderer.bounds);
+        }
+
+        // An empty/prototype scene can still display the map and centered marker.
+        if (!hasWorldBounds)
+        {
+            worldBounds = new Bounds(Vector3.zero, new Vector3(100f, 1f, 100f));
+            hasWorldBounds = true;
+        }
+    }
+
+    private void ResolveReferences()
+    {
+        if (player == null)
+        {
+            CharacterController controller = FindObjectOfType<CharacterController>();
+            if (controller != null) player = controller.transform;
+        }
+        if (targetCamera == null) targetCamera = Camera.main;
+        if (mapRoot == null)
+        {
+            GameObject root = GameObject.Find("MapRoot");
+            if (root != null) mapRoot = root.transform;
+        }
+        if (dockAnchor == null)
+        {
+            GameObject dock = GameObject.Find("BoatDockTarget");
+            if (dock != null) dockAnchor = dock.transform;
+        }
+    }
+
+    private void BuildUi()
+    {
+        if (mapRect != null) return;
+
+        circleSprite = CreateCircleSprite(128, 1f);
+        arrowSprite = CreateArrowSprite(96);
+        objectiveSprite = CreateCircleSprite(64, 0.82f);
+
+        GameObject canvasObject = new GameObject("ENV Minimap UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+        canvasObject.transform.SetParent(transform, false);
+        uiCanvas = canvasObject.GetComponent<Canvas>();
+        uiCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        uiCanvas.sortingOrder = 230;
+        CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        RectTransform rootRect = CreateRect("Minimap Root", canvasObject.transform);
+        rootRect.anchorMin = rootRect.anchorMax = new Vector2(0f, 1f);
+        rootRect.pivot = new Vector2(0f, 1f);
+        // Older scenes stored a right-side negative X offset.  Keep the value
+        // usable after moving this UI to the left side without requiring a
+        // scene migration before the next play session.
+        rootRect.anchoredPosition = new Vector2(Mathf.Abs(screenOffset.x), screenOffset.y);
+        rootRect.sizeDelta = new Vector2(mapDiameter + 10f, mapDiameter + 64f);
+
+        Image border = CreateImage("Circular Border", rootRect, circleSprite, new Color(0.04f, 0.12f, 0.17f, 0.94f));
+        RectTransform borderRect = border.rectTransform;
+        borderRect.anchorMin = borderRect.anchorMax = new Vector2(0f, 1f);
+        borderRect.pivot = new Vector2(0f, 1f);
+        borderRect.anchoredPosition = Vector2.zero;
+        borderRect.sizeDelta = new Vector2(mapDiameter + 10f, mapDiameter + 10f);
+
+        Image maskImage = CreateImage("Circular Mask", rootRect, circleSprite, Color.white);
+        mapRect = maskImage.rectTransform;
+        mapRect.anchorMin = mapRect.anchorMax = new Vector2(0f, 1f);
+        mapRect.pivot = new Vector2(0f, 1f);
+        mapRect.anchoredPosition = new Vector2(5f, -5f);
+        mapRect.sizeDelta = new Vector2(mapDiameter, mapDiameter);
+        Mask mask = maskImage.gameObject.AddComponent<Mask>();
+        mask.showMaskGraphic = false;
+
+        Image mapImage = CreateImage("Map Artwork", mapRect, CreateMapSprite(), Color.white);
+        Stretch(mapImage.rectTransform);
+        mapImage.preserveAspect = true;
+
+        Image objective = CreateImage("Next Gem", mapRect, objectiveSprite, new Color(1f, 0.82f, 0.22f));
+        objectiveMarker = objective.rectTransform;
+        objectiveMarker.sizeDelta = new Vector2(19f, 19f);
+        AddOutline(objective, new Color(0.2f, 0.08f, 0.02f, 0.9f), 2f);
+
+        Image marker = CreateImage("Player", mapRect, arrowSprite, new Color(1f, 1f, 1f));
+        playerMarker = marker.rectTransform;
+        playerMarker.sizeDelta = new Vector2(25f, 31f);
+        AddOutline(marker, new Color(0.03f, 0.16f, 0.23f, 0.95f), 2f);
+
+        Image captionBackground = CreateImage("Status Background", rootRect, null, new Color(0.015f, 0.05f, 0.08f, 0.78f));
+        RectTransform captionRect = captionBackground.rectTransform;
+        captionRect.anchorMin = captionRect.anchorMax = new Vector2(0f, 1f);
+        captionRect.pivot = new Vector2(0f, 1f);
+        captionRect.anchoredPosition = new Vector2(0f, -mapDiameter - 18f);
+        captionRect.sizeDelta = new Vector2(mapDiameter + 10f, 47f);
+
+        statusLabel = CreateText("Status", captionRect, 17, TextAnchor.MiddleCenter, Color.white);
+        Stretch(statusLabel.rectTransform);
+        statusLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+        statusLabel.verticalOverflow = VerticalWrapMode.Overflow;
+        statusLabel.text = "探索小岛\n正在定位玩家";
+    }
+
+    private void UpdatePlayerMarker()
+    {
+        if (playerMarker == null) return;
+        bool visible = player != null;
+        if (playerMarker.gameObject.activeSelf != visible) playerMarker.gameObject.SetActive(visible);
+        if (!visible) return;
+        playerMarker.anchoredPosition = WorldToMapPosition(player.position);
+        playerMarker.localRotation = Quaternion.Euler(0f, 0f, -player.eulerAngles.y);
+    }
+
+    private void UpdateObjectiveMarker()
+    {
+        ENVWorldProgress world = ENVWorldProgress.Instance;
+        ENVGem nextGem = world != null ? world.NextGem : null;
+        bool visible = nextGem != null;
+        if (objectiveMarker.gameObject.activeSelf != visible) objectiveMarker.gameObject.SetActive(visible);
+        if (visible) objectiveMarker.anchoredPosition = WorldToMapPosition(nextGem.transform.position);
+    }
+
+    private void UpdateStatus()
+    {
+        if (statusLabel == null) return;
+        ENVWorldProgress world = ENVWorldProgress.Instance;
+        int total = world != null ? world.expectedGemCount : 7;
+        int found = 0;
+        ENVGem nextGem = null;
+        if (world != null)
+        {
+            foreach (ENVGem gem in world.Gems) if (gem != null && gem.Activated) found++;
+            nextGem = world.NextGem;
+        }
+
+        string distance = string.Empty;
+        if (player != null && nextGem != null)
+            distance = " · 距离 " + Mathf.RoundToInt(Vector3.Distance(player.position, nextGem.transform.position)) + " 米";
+        statusLabel.text = "寻找散落的光之宝石\n已找到 " + found + " / " + total + distance;
+    }
+
+    private Vector2 WorldToMapPosition(Vector3 position)
+    {
+        float width = Mathf.Max(0.001f, worldBounds.size.x);
+        float depth = Mathf.Max(0.001f, worldBounds.size.z);
+        Vector2 mapUv;
+        if (dockAnchor != null)
+        {
+            // The supplied map is an illustration rather than a render of the
+            // scene. Aligning its dock to the real BoatDockTarget removes the
+            // systematic shift that placed the player in the forest.
+            mapUv = dockMapPosition + new Vector2(
+                (position.x - dockAnchor.position.x) / width,
+                (position.z - dockAnchor.position.z) / depth);
+        }
+        else
+        {
+            mapUv = new Vector2(
+                Mathf.InverseLerp(worldBounds.min.x, worldBounds.max.x, position.x),
+                Mathf.InverseLerp(worldBounds.min.z, worldBounds.max.z, position.z));
+        }
+        float paddedSize = mapDiameter * (1f - edgePadding * 2f);
+        Vector2 result = new Vector2((mapUv.x - 0.5f) * paddedSize, (mapUv.y - 0.5f) * paddedSize);
+        float maximumRadius = mapDiameter * 0.5f - mapDiameter * edgePadding;
+        return Vector2.ClampMagnitude(result, maximumRadius);
+    }
+
+    private Sprite CreateMapSprite()
+    {
+        if (mapTexture == null) return circleSprite;
+        return Sprite.Create(mapTexture, new Rect(0f, 0f, mapTexture.width, mapTexture.height), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static RectTransform CreateRect(string name, Transform parent)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        return go.GetComponent<RectTransform>();
+    }
+
+    private static Image CreateImage(string name, Transform parent, Sprite sprite, Color color)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        go.transform.SetParent(parent, false);
+        Image image = go.GetComponent<Image>();
+        image.sprite = sprite;
+        image.color = color;
+        image.raycastTarget = false;
+        return image;
+    }
+
+    private static Text CreateText(string name, Transform parent, int fontSize, TextAnchor alignment, Color color)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+        go.transform.SetParent(parent, false);
+        Text text = go.GetComponent<Text>();
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = fontSize;
+        text.alignment = alignment;
+        text.color = color;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    private static void Stretch(RectTransform rect)
+    {
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+    }
+
+    private static void AddOutline(Graphic graphic, Color color, float distance)
+    {
+        Outline outline = graphic.gameObject.AddComponent<Outline>();
+        outline.effectColor = color;
+        outline.effectDistance = new Vector2(distance, -distance);
+        outline.useGraphicAlpha = false;
+    }
+
+    private static Sprite CreateCircleSprite(int size, float radiusScale)
+    {
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        texture.name = "Runtime Minimap Circle";
+        texture.filterMode = FilterMode.Bilinear;
+        float radius = size * 0.5f * radiusScale;
+        Vector2 center = new Vector2((size - 1) * 0.5f, (size - 1) * 0.5f);
+        Color[] pixels = new Color[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            float alpha = Vector2.Distance(new Vector2(x, y), center) <= radius ? 1f : 0f;
+            pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+        }
+        texture.SetPixels(pixels);
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateArrowSprite(int size)
+    {
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        texture.name = "Runtime Minimap Player Arrow";
+        texture.filterMode = FilterMode.Bilinear;
+        Color[] pixels = new Color[size * size];
+        Vector2 a = new Vector2(size * 0.5f, size * 0.96f);
+        Vector2 b = new Vector2(size * 0.12f, size * 0.12f);
+        Vector2 c = new Vector2(size * 0.88f, size * 0.12f);
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            Vector2 p = new Vector2(x + 0.5f, y + 0.5f);
+            bool inside = SameSide(p, a, b, c) && SameSide(p, b, c, a) && SameSide(p, c, a, b);
+            pixels[y * size + x] = inside ? Color.white : Color.clear;
+        }
+        texture.SetPixels(pixels);
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static bool SameSide(Vector2 point, Vector2 lineA, Vector2 lineB, Vector2 opposite)
+    {
+        float sidePoint = Cross(lineB - lineA, point - lineA);
+        float sideOpposite = Cross(lineB - lineA, opposite - lineA);
+        return sidePoint * sideOpposite >= 0f;
+    }
+
+    private static float Cross(Vector2 a, Vector2 b) { return a.x * b.y - a.y * b.x; }
+}

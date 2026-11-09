@@ -143,7 +143,11 @@ public sealed class ENVSceneContentSetup : EditorWindow
             box.isTrigger = true;
             box.center = new Vector3(0, 1.2f, 0);
             box.size = new Vector3(4, 2.5f, 4);
-            go.AddComponent<ENVFairyIntroTrigger>();
+            var dialogue = go.AddComponent<ENVFairyIntroTrigger>();
+            dialogue.dialogueBackground = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/npc瀵硅瘽/鑳屾櫙.png");
+            dialogue.travelerPortrait = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/npc瀵硅瘽/瑙掕壊.png");
+            dialogue.fairyPortrait = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/npc瀵硅瘽/绮剧伒.png");
+            dialogue.dialogueFrame = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/npc瀵硅瘽/微信图片_20261109220950_304_1081.png");
             Save(go);
         }
         {

@@ -132,6 +132,7 @@ public sealed class ENVStartScreen : MonoBehaviour
         if (menuRoot != null) menuRoot.SetActive(false);
         ResumeWorld();
         SetWorldVisible(true);
+        StartGameplayAudio();
 
         // The supplied 4K clip is the menu background, not an intro movie.
         if (introSequence != null && introSequence.suppliedVideo != null)
@@ -148,6 +149,7 @@ public sealed class ENVStartScreen : MonoBehaviour
         if (menuRoot != null) menuRoot.SetActive(false);
         ResumeWorld();
         SetWorldVisible(true);
+        StartGameplayAudio();
         EnableGameplayInput();
     }
 
@@ -243,6 +245,12 @@ public sealed class ENVStartScreen : MonoBehaviour
     {
         if (menuAudioSource != null && clip != null)
             menuAudioSource.PlayOneShot(clip, menuAudioVolume);
+    }
+
+    private static void StartGameplayAudio()
+    {
+        ENVAudioBank audioBank = FindObjectOfType<ENVAudioBank>(true);
+        if (audioBank != null) audioBank.StartGameplayAudio();
     }
 
 

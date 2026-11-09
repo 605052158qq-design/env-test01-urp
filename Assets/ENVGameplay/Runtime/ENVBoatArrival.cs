@@ -36,6 +36,8 @@ public sealed class ENVBoatArrival : MonoBehaviour
     private Transform passengerOriginalParent;
     private bool passengerRideStarted;
     public bool IsPlaying { get { return playing; } }
+    /// <summary>True only after the arrival cinematic has fully finished.</summary>
+    public bool HasArrived { get; private set; }
     public bool CanPlay
     {
         get
@@ -64,6 +66,7 @@ public sealed class ENVBoatArrival : MonoBehaviour
             Debug.LogWarning("[ENV L06] Assign BoatDockTarget on the real boat before playing.", this);
             return;
         }
+        HasArrived = false;
         StartCoroutine(RunArrival());
     }
 
@@ -75,6 +78,7 @@ public sealed class ENVBoatArrival : MonoBehaviour
         if (pauseAtDockSeconds > 0f) yield return new WaitForSeconds(pauseAtDockSeconds);
         EndPassengerRide();
         playing = false;
+        HasArrived = true;
         if (onArrivalComplete != null) onArrivalComplete.Invoke();
     }
 
@@ -155,6 +159,7 @@ public sealed class ENVBoatArrival : MonoBehaviour
     {
         EndPassengerRide();
         playing = false;
+        HasArrived = false;
     }
 
     private void OnDrawGizmos()

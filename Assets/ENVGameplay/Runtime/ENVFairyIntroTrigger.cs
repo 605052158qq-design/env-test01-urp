@@ -1,83 +1,139 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Video;
 
-/// <summary>L11. Attach to a marker in the blue area. Optional supplied VideoClip plays first, then one real fairy follows.</summary>
+/// <summary>
+/// Ancient-tree encounter trigger. The former fairy-video/follow sequence was
+/// deliberately replaced by the supplied NPC dialogue presentation.
+/// </summary>
 [RequireComponent(typeof(BoxCollider))]
 [DisallowMultipleComponent]
 public sealed class ENVFairyIntroTrigger : MonoBehaviour
 {
+    [Header("Trigger")]
     public Transform player;
-    public ENVFairyFollower fairy;
-    public VideoClip suppliedFairyIntroVideo;
-    public Camera gameCamera;
-    [Tooltip("Provides visible feedback while the final fairy video/model is pending.")]
-    public ENVRegionTitleUI titleUi;
-    public string triggerMessage = "古树苏醒 · 精灵的光芒正在靠近";
-    public UnityEvent onFairyAppeared;
-    private bool fired;
-    private bool playing;
-    private VideoPlayer video;
+
+    [Header("NPC dialogue art")]
+    public Sprite dialogueBackground;
+    public Sprite dialogueFrame;
+    public Sprite travelerPortrait;
+    public Sprite fairyPortrait;
+
+    [Header("Fairy follow after dialogue")]
+    [Tooltip("The real in-scene fairy visual, not the dialogue UI portrait.")]
+    public ENVFairyFollower fairyFollower;
+    public Vector3 fairyFollowOffset = new Vector3(0f, 1.15f, -1.6f);
+
+    [Header("Event")]
+    public UnityEvent onDialogueFinished;
+
+    private readonly List<Behaviour> pausedBehaviours = new List<Behaviour>();
     private BoxCollider zone;
-    private void Awake() { zone = GetComponent<BoxCollider>(); zone.isTrigger = true; }
+    private bool fired;
+    private float timeScaleBeforeDialogue = 1f;
+
+    private void Awake()
+    {
+        zone = GetComponent<BoxCollider>();
+        zone.isTrigger = true;
+    }
+
     private void Start()
     {
-        if (player == null) { var cc = FindObjectOfType<CharacterController>(); if (cc != null) player = cc.transform; }
-        if (gameCamera == null) gameCamera = Camera.main;
+        if (player == null)
+        {
+            CharacterController controller = FindObjectOfType<CharacterController>();
+            if (controller != null) player = controller.transform;
+        }
     }
+
     private void Update()
     {
-        if (fired || player == null) return;
-        if (zone.bounds.Contains(player.position + Vector3.up * 0.5f)) Activate();
+        if (!fired && player != null && zone.bounds.Contains(player.position + Vector3.up * 0.5f))
+            Activate();
     }
-    private void OnTriggerEnter(Collider other) { if (player != null && (other.transform == player || other.transform.IsChildOf(player))) Activate(); }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (player != null && (other.transform == player || other.transform.IsChildOf(player)))
+            Activate();
+    }
+
+    /// <summary>Allows the existing debug button to validate the encounter branch.</summary>
+    public void DebugActivate() { Activate(); }
+
     private void Activate()
     {
         if (fired) return;
         fired = true;
-        if (suppliedFairyIntroVideo == null) { Complete(); return; }
-        StartCoroutine(PlayVideo());
+        PauseGameplay();
+        ENVNpcDialogueUI.Show(this);
     }
 
-    /// <summary>Invoked from the V1 debug GUI; no temporary collider is needed.</summary>
-    public void DebugActivate() { Activate(); }
-    private IEnumerator PlayVideo()
+    internal void FinishDialogue()
     {
-        playing = true;
-        ENVCinematicScreen.Begin();
-        video = gameObject.AddComponent<VideoPlayer>();
-        video.playOnAwake = false;
-        video.clip = suppliedFairyIntroVideo;
-        video.renderMode = VideoRenderMode.CameraNearPlane;
-        video.targetCamera = gameCamera;
-        video.aspectRatio = VideoAspectRatio.FitInside;
-        video.isLooping = false;
-        video.audioOutputMode = VideoAudioOutputMode.Direct;
-        video.Prepare();
-        float timeout = 10f;
-        while (!video.isPrepared && timeout > 0f) { timeout -= Time.unscaledDeltaTime; yield return null; }
-        if (video.isPrepared)
+        StartFairyFollow();
+        ResumeGameplay();
+        if (onDialogueFinished != null) onDialogueFinished.Invoke();
+    }
+
+    private void StartFairyFollow()
+    {
+        if (fairyFollower == null) fairyFollower = FindObjectOfType<ENVFairyFollower>(true);
+        if (fairyFollower == null)
         {
-            video.Play();
-            while (video != null && video.isPlaying) yield return null;
+            foreach (GameObject candidate in Resources.FindObjectsOfTypeAll<GameObject>())
+            {
+                if (candidate.name != "ENV_FairyPlaceholder_ReplaceWithArt" ||
+                    !candidate.scene.IsValid() || !candidate.scene.isLoaded) continue;
+                fairyFollower = candidate.GetComponent<ENVFairyFollower>();
+                if (fairyFollower == null) fairyFollower = candidate.AddComponent<ENVFairyFollower>();
+                break;
+            }
         }
-        if (video != null) Destroy(video);
-        playing = false;
-        ENVCinematicScreen.End();
-        Complete();
+
+        if (fairyFollower == null)
+        {
+            Debug.LogWarning("[ENV NPC Dialogue] No in-scene fairy visual was found for the post-dialogue follow.", this);
+            return;
+        }
+
+        fairyFollower.player = player;
+        fairyFollower.relativeOffset = fairyFollowOffset;
+        fairyFollower.BeginFollow();
     }
-    private void Complete()
+
+    private void PauseGameplay()
     {
-        if (fairy != null) fairy.BeginFollow();
-        if (titleUi == null) titleUi = ENVRegionTitleUI.Instance;
-        if (titleUi != null && !string.IsNullOrWhiteSpace(triggerMessage)) titleUi.Show(triggerMessage, 3.5f);
-        if (onFairyAppeared != null) onFairyAppeared.Invoke();
+        timeScaleBeforeDialogue = Time.timeScale;
+        Time.timeScale = 0f;
+        pausedBehaviours.Clear();
+        foreach (Behaviour behaviour in FindObjectsOfType<Behaviour>(true))
+        {
+            if (!behaviour.enabled) continue;
+            if (behaviour is ENVPrototypeThirdPersonController ||
+                behaviour is ENVPrototypeOrbitCamera ||
+                behaviour is ENVPlayerInteraction ||
+                behaviour is ENVGemInteractor)
+            {
+                pausedBehaviours.Add(behaviour);
+                behaviour.enabled = false;
+            }
+        }
     }
+
+    private void ResumeGameplay()
+    {
+        Time.timeScale = timeScaleBeforeDialogue;
+        foreach (Behaviour behaviour in pausedBehaviours)
+            if (behaviour != null) behaviour.enabled = true;
+        pausedBehaviours.Clear();
+    }
+
     private void OnDisable()
     {
-        if (video != null) { video.Stop(); Destroy(video); }
-        if (playing) ENVCinematicScreen.End();
-        playing = false;
+        if (fired && ENVNpcDialogueUI.IsShowingFor(this))
+            ENVNpcDialogueUI.CloseWithoutCompleting();
+        ResumeGameplay();
     }
 }

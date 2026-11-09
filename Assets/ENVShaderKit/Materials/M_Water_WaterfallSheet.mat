@@ -43,11 +43,11 @@ Material:
     m_Floats:
     - _Breakup: 0.85
     - _FallSpeed: 2.4
-    - _FoamTexStrength: 0.35
+    - _FoamTexStrength: 1.56
     - _MaskPower: 1.11
-    - _NoiseScale: 3.4
+    - _NoiseScale: 1
     - _NoiseSpeed: 0.8
-    - _NoiseStrength: 0.09
+    - _NoiseStrength: 0.081
     - _Opacity: 0.59
     - _StreakDensity: 3.5
     - _StreakStrength: 0.72

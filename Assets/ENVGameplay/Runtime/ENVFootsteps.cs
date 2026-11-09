@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>L15: on existing CharacterController root. Footsteps only if grounded and moving.</summary>
-[RequireComponent(typeof(CharacterController), typeof(AudioSource))]
+[RequireComponent(typeof(CharacterController))]
 [DisallowMultipleComponent]
 public sealed class ENVFootsteps : MonoBehaviour
 {
@@ -19,7 +19,18 @@ public sealed class ENVFootsteps : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.spatialBlend = 0f; audioSource.playOnAwake = false;
+
+        // The customer supplied one walking clip for V1. Use it for both
+        // surfaces until distinct snow steps are provided, while retaining the
+        // Inspector arrays for a future per-surface replacement.
+        ENVAudioBank bank = FindObjectOfType<ENVAudioBank>(true);
+        if (bank != null && bank.B_footstep != null)
+        {
+            if (grassSteps == null || grassSteps.Length == 0) grassSteps = new[] { bank.B_footstep };
+            if (snowSteps == null || snowSteps.Length == 0) snowSteps = new[] { bank.B_footstep };
+        }
     }
     private void Update()
     {

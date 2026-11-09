@@ -41,6 +41,8 @@ public sealed class ENVGemInteractor : MonoBehaviour
                 " (index " + closest.sequenceIndex + "). Color reveal is handled separately by ENVMaterialColorRecovery or ENVColorRecoveryFeature.", closest);
             if (visualAnimator == null) visualAnimator = GetComponent<ENVPlayerVisualAnimator>();
             if (visualAnimator != null) visualAnimator.PlayTouch();
+            ENVAudioBank audioBank = FindObjectOfType<ENVAudioBank>(true);
+            if (audioBank != null) audioBank.PlayGemTouch();
         }
         else if (logEFailures)
             Debug.LogWarning("[ENV Gem E] Gem is inside the Collider but activation was refused: " + closest.gemstoneName, closest);

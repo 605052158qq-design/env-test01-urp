@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>L14. Displays the next gemstone location on-screen; customer may replace the UI Sprite/Text.</summary>
+/// <summary>L14. Displays the next gemstone location on-screen.
+/// The marker intentionally has no gemstone-name text; it only exposes the
+/// interaction prompt while the player is inside that gem's trigger zone.</summary>
 [DisallowMultipleComponent]
 public sealed class ENVObjectivePointer : MonoBehaviour
 {
@@ -13,10 +15,12 @@ public sealed class ENVObjectivePointer : MonoBehaviour
     public Vector2 screenMargin = new Vector2(90f, 90f);
     private Canvas canvas;
     private RectTransform canvasRect;
+    private ENVGemInteractor gemInteractor;
     private void Start()
     {
         if (targetCamera == null) targetCamera = Camera.main;
         if (player == null) { var cc = FindObjectOfType<CharacterController>(); if (cc != null) player = cc.transform; }
+        if (player != null) gemInteractor = player.GetComponent<ENVGemInteractor>();
         if (pointer == null) MakeDefaultUI();
     }
     private void MakeDefaultUI()
@@ -43,6 +47,7 @@ public sealed class ENVObjectivePointer : MonoBehaviour
         GameObject label = new GameObject("Objective Distance", typeof(RectTransform), typeof(Text));
         label.transform.SetParent(item.transform, false);
         distanceLabel = label.GetComponent<Text>(); distanceLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        distanceLabel.text = "按 E 交互";
         distanceLabel.fontSize = 17; distanceLabel.alignment = TextAnchor.MiddleCenter; distanceLabel.color = Color.white;
         distanceLabel.raycastTarget = false;
         distanceLabel.rectTransform.sizeDelta = new Vector2(190f, 28f);
@@ -62,8 +67,14 @@ public sealed class ENVObjectivePointer : MonoBehaviour
         pointer.position = new Vector3(x, y, 0f);
         if (distanceLabel != null)
         {
-            float d = player != null ? Vector3.Distance(player.position, next.transform.position) : 0f;
-            distanceLabel.text = next.gemstoneName + (player != null ? "  " + Mathf.RoundToInt(d) + "m" : "");
+            if (gemInteractor == null && player != null) gemInteractor = player.GetComponent<ENVGemInteractor>();
+            // FindNearest performs the same exact trigger-volume test used by
+            // the E-key action.  The prompt therefore cannot appear merely
+            // because a gem is visible or nearby through a wall.
+            bool canInteract = gemInteractor != null && gemInteractor.FindNearest() == next;
+            if (distanceLabel.gameObject.activeSelf != canInteract)
+                distanceLabel.gameObject.SetActive(canInteract);
+            if (canInteract) distanceLabel.text = "按 E 交互";
         }
     }
 }

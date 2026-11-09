@@ -75,7 +75,10 @@ public sealed class ENVBoatArrival : MonoBehaviour
         playing = true;
         BeginPassengerRide();
         yield return MoveBoatToDock();
-        if (pauseAtDockSeconds > 0f) yield return new WaitForSeconds(pauseAtDockSeconds);
+        if (pauseAtDockSeconds > 0f)
+        {
+            yield return new WaitForSeconds(pauseAtDockSeconds);
+        }
         EndPassengerRide();
         playing = false;
         HasArrived = true;

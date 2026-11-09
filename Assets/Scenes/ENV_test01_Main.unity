@@ -20484,10 +20484,12 @@ MonoBehaviour:
   targetCamera: {fileID: 0}
   mapRoot: {fileID: 961607824}
   dockAnchor: {fileID: 114193092}
+  snowAnchor: {fileID: 1765212165}
   mapDiameter: 224
   edgePadding: 0.075
   screenOffset: {x: 32, y: -30}
   dockMapPosition: {x: 0.62, y: 0.145}
+  snowMapPosition: {x: 0.52, y: 0.83}
 --- !u!4 &1002821761
 Transform:
   m_ObjectHideFlags: 0

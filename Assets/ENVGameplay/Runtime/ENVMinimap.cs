@@ -20,6 +20,8 @@ public sealed class ENVMinimap : MonoBehaviour
     public Transform mapRoot;
     [Tooltip("World-space dock marker that calibrates the artwork to the real scene.")]
     public Transform dockAnchor;
+    [Tooltip("The final snow-mountain gem. Together with the dock it fixes map orientation.")]
+    public Transform snowAnchor;
 
     [Header("Layout")]
     [Range(140f, 420f)] public float mapDiameter = 224f;
@@ -27,6 +29,8 @@ public sealed class ENVMinimap : MonoBehaviour
     public Vector2 screenOffset = new Vector2(32f, -30f);
     [Tooltip("The illustrated dock's location in the source map, measured from bottom-left.")]
     public Vector2 dockMapPosition = new Vector2(0.62f, 0.145f);
+    [Tooltip("The illustrated snow-mountain location, measured from bottom-left.")]
+    public Vector2 snowMapPosition = new Vector2(0.52f, 0.83f);
 
     private RectTransform mapRect;
     private RectTransform playerMarker;
@@ -126,6 +130,11 @@ public sealed class ENVMinimap : MonoBehaviour
         {
             GameObject dock = GameObject.Find("BoatDockTarget");
             if (dock != null) dockAnchor = dock.transform;
+        }
+        if (snowAnchor == null)
+        {
+            GameObject snowGem = GameObject.Find("INT_baoshi_07");
+            if (snowGem != null) snowAnchor = snowGem.transform;
         }
     }
 
@@ -243,11 +252,33 @@ public sealed class ENVMinimap : MonoBehaviour
         float width = Mathf.Max(0.001f, worldBounds.size.x);
         float depth = Mathf.Max(0.001f, worldBounds.size.z);
         Vector2 mapUv;
-        if (dockAnchor != null)
+        if (dockAnchor != null && snowAnchor != null)
         {
-            // The supplied map is an illustration rather than a render of the
-            // scene. Aligning its dock to the real BoatDockTarget removes the
-            // systematic shift that placed the player in the forest.
+            // The illustration's compass does not match the scene's X/Z axes.
+            // Two real-world anchors make the mapping unambiguous: the arrival
+            // dock maps to the southern pier and the seventh gem maps to the
+            // snow mountain at the top of the image.
+            Vector2 worldDock = new Vector2(dockAnchor.position.x, dockAnchor.position.z);
+            Vector2 worldSnow = new Vector2(snowAnchor.position.x, snowAnchor.position.z);
+            Vector2 worldDirection = worldSnow - worldDock;
+            Vector2 mapDirection = snowMapPosition - dockMapPosition;
+            if (worldDirection.sqrMagnitude > 0.001f && mapDirection.sqrMagnitude > 0.000001f)
+            {
+                float rotationRadians = Mathf.Atan2(mapDirection.y, mapDirection.x) -
+                                        Mathf.Atan2(worldDirection.y, worldDirection.x);
+                float scale = mapDirection.magnitude / worldDirection.magnitude;
+                Vector2 worldOffset = new Vector2(position.x, position.z) - worldDock;
+                float cos = Mathf.Cos(rotationRadians);
+                float sin = Mathf.Sin(rotationRadians);
+                Vector2 rotatedOffset = new Vector2(
+                    worldOffset.x * cos - worldOffset.y * sin,
+                    worldOffset.x * sin + worldOffset.y * cos);
+                mapUv = dockMapPosition + rotatedOffset * scale;
+            }
+            else mapUv = dockMapPosition;
+        }
+        else if (dockAnchor != null)
+        {
             mapUv = dockMapPosition + new Vector2(
                 (position.x - dockAnchor.position.x) / width,
                 (position.z - dockAnchor.position.z) / depth);

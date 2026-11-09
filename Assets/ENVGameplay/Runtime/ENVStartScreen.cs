@@ -13,7 +13,6 @@ public sealed class ENVStartScreen : MonoBehaviour
     [Header("Scene references")]
     public GameObject menuRoot;
     public ENVVideoSequence introSequence;
-    public ENVIntroCutscene introCutscene;
     public ENVBoatArrival boatArrival;
     public Behaviour[] gameplayInput;
 
@@ -59,8 +58,6 @@ public sealed class ENVStartScreen : MonoBehaviour
 
         if (introSequence != null)
             introSequence.onComplete.AddListener(BeginBoatArrival);
-        if (introCutscene != null)
-            introCutscene.onComplete.AddListener(BeginBoatArrival);
         if (boatArrival != null)
             boatArrival.onArrivalComplete.AddListener(EnableGameplayInput);
         ShowMenu();
@@ -72,8 +69,6 @@ public sealed class ENVStartScreen : MonoBehaviour
     {
         if (introSequence != null)
             introSequence.onComplete.RemoveListener(BeginBoatArrival);
-        if (introCutscene != null)
-            introCutscene.onComplete.RemoveListener(BeginBoatArrival);
         if (boatArrival != null)
             boatArrival.onArrivalComplete.RemoveListener(EnableGameplayInput);
         SetWorldVisible(true);
@@ -82,18 +77,13 @@ public sealed class ENVStartScreen : MonoBehaviour
 
     private void Update()
     {
-        // Escape skips only an active opening video/caption. It does not skip the
-        // boat crossing or restore player input early.
+        // Escape skips only the active opening video. It does not skip the boat
+        // crossing or restore player input early.
         if (introPending && Input.GetKeyDown(KeyCode.Escape))
         {
             if (introSequence != null && introSequence.IsPlaying)
             {
                 introSequence.Skip();
-                return;
-            }
-            if (introCutscene != null && introCutscene.IsPlaying)
-            {
-                introCutscene.Skip();
                 return;
             }
         }
@@ -144,18 +134,10 @@ public sealed class ENVStartScreen : MonoBehaviour
         SetWorldVisible(true);
 
         // The supplied 4K clip is the menu background, not an intro movie.
-        // Prefer the authored gameplay intro; retain the caption card as a fallback
-        // while a project is being assembled without its video asset.
         if (introSequence != null && introSequence.suppliedVideo != null)
         {
             introPending = true;
             introSequence.Play();
-            return;
-        }
-        if (introCutscene != null)
-        {
-            introPending = true;
-            introCutscene.Play();
             return;
         }
         BeginBoatArrival();

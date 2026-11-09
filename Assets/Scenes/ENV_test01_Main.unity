@@ -22220,7 +22220,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuRoot: {fileID: 943548424}
   introSequence: {fileID: 1288002077}
-  introCutscene: {fileID: 1863049288}
   boatArrival: {fileID: 27666449}
   gameplayInput:
   - {fileID: 631631430}
@@ -34014,7 +34013,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1863049295}
-  - component: {fileID: 1863049288}
   - component: {fileID: 1863049294}
   - component: {fileID: 1863049293}
   - component: {fileID: 1863049292}
@@ -34027,24 +34025,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1863049288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1863049287}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f4c28af189005949a571546bb04d3c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeSeconds: 0.4
-  captionSeconds: 1.6
-  onComplete:
-    m_PersistentCalls:
-      m_Calls: []
+  m_IsActive: 0
 --- !u!114 &1863049289
 MonoBehaviour:
   m_ObjectHideFlags: 0

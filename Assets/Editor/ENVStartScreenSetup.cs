@@ -53,9 +53,10 @@ public static class ENVStartScreenSetup
         resume.gameObject.SetActive(false);
         exit.gameObject.SetActive(false);
 
-        GameObject cutsceneObject = FindOrCreateChild(root.transform, "DockingCutscene");
-        ENVIntroCutscene cutscene = GetOrAdd<ENVIntroCutscene>(cutsceneObject);
-        cutscene.Configure("潮声渐近……", "船正驶向微光码头");
+        // Remove the retired caption-card fallback if an older scene still has it.
+        Transform legacyCutscene = root.transform.Find("DockingCutscene");
+        if (legacyCutscene != null)
+            Undo.DestroyObjectImmediate(legacyCutscene.gameObject);
 
         ENVVideoSequence introSequence = Object.FindObjectOfType<ENVVideoSequence>(true);
         if (introSequence == null)
@@ -70,7 +71,6 @@ public static class ENVStartScreenSetup
 
         screen.menuRoot = menu;
         screen.introSequence = introSequence;
-        screen.introCutscene = cutscene;
         // Explicit UnityEngine qualification also keeps this static editor utility
         // independent from any project type named Object.
         screen.boatArrival = UnityEngine.Object.FindObjectOfType<ENVBoatArrival>(true);

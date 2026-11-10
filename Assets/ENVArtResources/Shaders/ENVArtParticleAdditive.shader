@@ -1,6 +1,6 @@
 Shader "ENVArt/FX/ParticleAdditive"
 {
- Properties { _MainTex("Sprite",2D)="white"{} _TintColor("Tint",Color)=(1,1,1,1) }
+ Properties { _MainTex("Sprite",2D)="white"{} [HDR]_TintColor("Tint",Color)=(1,1,1,1) }
  SubShader
  {
   Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Transparent" "Queue"="Transparent" "IgnoreProjector"="True" }

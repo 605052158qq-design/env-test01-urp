@@ -46,6 +46,8 @@ public static class ENVMinimapInstaller
         if (boatDock != null) minimap.dockAnchor = boatDock.transform;
         GameObject snowGem = GameObject.Find("INT_baoshi_07");
         if (snowGem != null) minimap.snowAnchor = snowGem.transform;
+        minimap.mapDiameter = 290f;
+        minimap.mapArtworkScale = 3.7688f;
         minimap.screenOffset = new Vector2(32f, -30f);
         minimap.dockMapPosition = new Vector2(0.62f, 0.145f);
         minimap.snowMapPosition = new Vector2(0.52f, 0.83f);

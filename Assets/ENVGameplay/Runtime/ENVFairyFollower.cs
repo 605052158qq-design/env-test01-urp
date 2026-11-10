@@ -8,6 +8,10 @@ public sealed class ENVFairyFollower : MonoBehaviour
     public Vector3 relativeOffset = new Vector3(1.1f, 1.5f, -1.2f);
     [Min(0.01f)] public float followSmoothTime = 0.3f;
     public bool startFollowing = false;
+    [Header("Facing")]
+    [Tooltip("Keeps the in-world fairy facing the same horizontal direction as the player.")]
+    public bool facePlayerDirection = true;
+    [Range(-180f, 180f)] public float playerFacingYawOffset = 0f;
     public bool alwaysFaceCamera = false;
     public Camera facingCamera;
     private Vector3 velocity;
@@ -23,7 +27,19 @@ public sealed class ENVFairyFollower : MonoBehaviour
         if (!startFollowing || player == null) return;
         Vector3 target = player.TransformPoint(relativeOffset);
         transform.position = Vector3.SmoothDamp(transform.position, target, ref velocity, followSmoothTime);
-        if (alwaysFaceCamera && facingCamera != null)
+        if (facePlayerDirection)
+        {
+            Vector3 forward = Vector3.ProjectOnPlane(player.forward, Vector3.up);
+            if (forward.sqrMagnitude > 0.001f)
+            {
+                // Preserve the visual's authored pitch/roll (some sprite/mesh roots
+                // are rotated by -90 degrees) and only synchronize its world yaw.
+                Vector3 euler = transform.eulerAngles;
+                euler.y = Quaternion.LookRotation(forward, Vector3.up).eulerAngles.y + playerFacingYawOffset;
+                transform.rotation = Quaternion.Euler(euler);
+            }
+        }
+        else if (alwaysFaceCamera && facingCamera != null)
         {
             Vector3 dir = facingCamera.transform.position - transform.position;
             if (dir.sqrMagnitude > 0.001f) transform.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);

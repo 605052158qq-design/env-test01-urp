@@ -41,6 +41,7 @@ public sealed class ENVStartScreen : MonoBehaviour
     private float timeScaleBeforeMenu = 1f;
     private AudioSource menuAudioSource;
     private int hoveredAction;
+    public bool IsMenuShowing { get { return menuRoot != null && menuRoot.activeInHierarchy; } }
 
     private void Awake()
     {

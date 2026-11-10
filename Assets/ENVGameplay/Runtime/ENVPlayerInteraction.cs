@@ -42,6 +42,8 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
         if (characterAnimator == null) characterAnimator = GetComponentInChildren<Animator>(true);
         movementScript = FindMotor();
         CurrentMode = ActorMode.Free;
+        if (GetComponent<ENVInteractionPromptUI>() == null)
+            gameObject.AddComponent<ENVInteractionPromptUI>();
     }
 
     private void Update()
@@ -198,5 +200,96 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
         clipPlayer.Stop();
         if (CurrentMode != ActorMode.Free) UnlockMovement();
         CurrentMode = ActorMode.Free;
+    }
+}
+
+/// <summary>One contextual uGUI prompt for the real seat and gem components near the player.</summary>
+[DisallowMultipleComponent]
+public sealed class ENVInteractionPromptUI : MonoBehaviour
+{
+    [Min(0.05f)] public float queryInterval = 0.12f;
+    public string sitPrompt = "按 R 坐下";
+    public string standPrompt = "按 R 起身";
+    public string gemPrompt = "按 E 触碰宝石";
+
+    private ENVPlayerInteraction playerInteraction;
+    private ENVGemInteractor gemInteractor;
+    private ENVStartScreen startScreen;
+    private UnityEngine.UI.Text label;
+    private float nextQuery;
+
+    private void Awake()
+    {
+        playerInteraction = GetComponent<ENVPlayerInteraction>();
+        gemInteractor = GetComponent<ENVGemInteractor>();
+        CreateUi();
+    }
+
+    private void Update()
+    {
+        if (Time.unscaledTime < nextQuery) return;
+        nextQuery = Time.unscaledTime + queryInterval;
+        if (startScreen == null) startScreen = FindObjectOfType<ENVStartScreen>(true);
+        if (startScreen != null && startScreen.IsMenuShowing) { SetVisible(false); return; }
+        if (ENVCinematicScreen.ActiveSequences > 0) { SetVisible(false); return; }
+
+        if (playerInteraction != null && playerInteraction.CurrentMode == ENVPlayerInteraction.ActorMode.Sitting)
+        {
+            SetText(standPrompt);
+            return;
+        }
+
+        if (gemInteractor == null) gemInteractor = GetComponent<ENVGemInteractor>();
+        if (gemInteractor != null && gemInteractor.FindNearest() != null)
+        {
+            SetText(gemPrompt);
+            return;
+        }
+
+        SetText(ENVSeat.FindNearest(transform.position) != null ? sitPrompt : null);
+    }
+
+    private void CreateUi()
+    {
+        GameObject canvasObject = new GameObject("Interaction Prompt", typeof(RectTransform), typeof(Canvas), typeof(UnityEngine.UI.CanvasScaler), typeof(UnityEngine.UI.GraphicRaycaster));
+        Canvas canvas = canvasObject.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 250;
+        UnityEngine.UI.CanvasScaler scaler = canvasObject.GetComponent<UnityEngine.UI.CanvasScaler>();
+        scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+
+        GameObject textObject = new GameObject("Prompt", typeof(RectTransform), typeof(UnityEngine.UI.Text), typeof(UnityEngine.UI.Outline), typeof(UnityEngine.UI.Shadow));
+        textObject.transform.SetParent(canvasObject.transform, false);
+        label = textObject.GetComponent<UnityEngine.UI.Text>();
+        label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        label.fontSize = 30;
+        label.fontStyle = FontStyle.Bold;
+        label.alignment = TextAnchor.MiddleCenter;
+        label.color = Color.white;
+        label.raycastTarget = false;
+        RectTransform rect = label.rectTransform;
+        rect.anchorMin = new Vector2(0.5f, 0.16f);
+        rect.anchorMax = new Vector2(0.5f, 0.16f);
+        rect.sizeDelta = new Vector2(440f, 52f);
+        UnityEngine.UI.Outline outline = textObject.GetComponent<UnityEngine.UI.Outline>();
+        outline.effectColor = new Color(0.04f, 0.04f, 0.08f, 0.95f);
+        outline.effectDistance = new Vector2(2f, -2f);
+        UnityEngine.UI.Shadow shadow = textObject.GetComponent<UnityEngine.UI.Shadow>();
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.55f);
+        shadow.effectDistance = new Vector2(5f, -5f);
+        SetVisible(false);
+    }
+
+    private void SetText(string value)
+    {
+        if (string.IsNullOrEmpty(value)) { SetVisible(false); return; }
+        label.text = value;
+        SetVisible(true);
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (label != null && label.gameObject.activeSelf != visible) label.gameObject.SetActive(visible);
     }
 }

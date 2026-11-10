@@ -11,6 +11,7 @@ public sealed class ENVFootsteps : MonoBehaviour
     [Min(0.1f)] public float walkStepInterval = 0.48f;
     [Min(0.1f)] public float runStepInterval = 0.3f;
     [Min(0.1f)] public float runSpeedThreshold = 4.5f;
+    [Min(0f)] public float minimumMovementSpeed = 0.3f;
     [Range(0f, 1f)] public float volume = 0.55f;
     private CharacterController controller;
     private AudioSource audioSource;
@@ -34,10 +35,10 @@ public sealed class ENVFootsteps : MonoBehaviour
     }
     private void Update()
     {
-        if (!controller.enabled || !controller.isGrounded) { countdown = 0f; return; }
+        if (!controller.enabled || !controller.isGrounded) { StopFootsteps(); return; }
         Vector3 v = controller.velocity; v.y = 0f;
         float speed = v.magnitude;
-        if (speed < 0.3f) { countdown = 0f; return; }
+        if (speed < minimumMovementSpeed) { StopFootsteps(); return; }
         countdown -= Time.deltaTime;
         if (countdown > 0f) return;
         countdown = speed > runSpeedThreshold ? runStepInterval : walkStepInterval;
@@ -46,6 +47,22 @@ public sealed class ENVFootsteps : MonoBehaviour
         AudioClip[] clips = snow ? snowSteps : grassSteps;
         if (clips == null || clips.Length == 0) return;
         var c = clips[Random.Range(0, clips.Length)];
-        if (c != null) audioSource.PlayOneShot(c, volume);
+        if (c == null) return;
+
+        // One dedicated source prevents several footstep one-shots from piling up
+        // when the player changes direction or stops between two step intervals.
+        // PlayOneShot intentionally cannot be cancelled, which was the cause of
+        // footsteps continuing after movement had already stopped.
+        audioSource.clip = c;
+        audioSource.volume = volume;
+        audioSource.Play();
     }
+
+    private void StopFootsteps()
+    {
+        countdown = 0f;
+        if (audioSource != null && audioSource.isPlaying) audioSource.Stop();
+    }
+
+    private void OnDisable() { StopFootsteps(); }
 }

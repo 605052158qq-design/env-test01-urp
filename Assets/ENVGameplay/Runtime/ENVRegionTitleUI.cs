@@ -19,6 +19,7 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         Instance = this;
         if (titleText == null) CreateDefaultUI();
         else if (group == null) group = titleText.GetComponent<CanvasGroup>() ?? titleText.gameObject.AddComponent<CanvasGroup>();
+        ApplyTitleStyle();
         if (group != null) group.alpha = 0f;
     }
     private void OnDestroy() { if (Instance == this) Instance = null; }
@@ -32,14 +33,15 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         var scaler = canvasGO.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
-        GameObject textGO = new GameObject("Area Name", typeof(RectTransform), typeof(CanvasGroup), typeof(Text));
+        GameObject textGO = new GameObject("Area Name", typeof(RectTransform), typeof(CanvasGroup), typeof(Text), typeof(Outline), typeof(Shadow));
         textGO.transform.SetParent(canvasGO.transform, false);
         group = textGO.GetComponent<CanvasGroup>();
         titleText = textGO.GetComponent<Text>();
         titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        titleText.fontSize = 54;
+        titleText.fontSize = 68;
+        titleText.fontStyle = FontStyle.Bold;
         titleText.alignment = TextAnchor.MiddleCenter;
-        titleText.color = Color.white;
+        titleText.color = new Color(1f, 0.97f, 0.87f);
         titleText.raycastTarget = false;
         titleText.horizontalOverflow = HorizontalWrapMode.Overflow;
         var rect = titleText.rectTransform;
@@ -56,7 +58,19 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
     private IEnumerator ShowRoutine(string title, float time)
     {
         titleText.text = title;
+        titleText.rectTransform.localScale = Vector3.one * 0.86f;
+        float enter = 0f;
+        const float enterSeconds = 0.22f;
+        while (enter < enterSeconds)
+        {
+            enter += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(enter / enterSeconds);
+            group.alpha = t;
+            titleText.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.86f, 1f, 1f - Mathf.Pow(1f - t, 3f));
+            yield return null;
+        }
         group.alpha = 1f;
+        titleText.rectTransform.localScale = Vector3.one;
         yield return new WaitForSecondsRealtime(Mathf.Max(0f, time));
         float elapsed = 0f;
         float dur = Mathf.Max(0.01f, fadeSeconds);
@@ -68,5 +82,19 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         }
         group.alpha = 0f;
         routine = null;
+    }
+
+    private void ApplyTitleStyle()
+    {
+        if (titleText == null) return;
+        titleText.fontStyle = FontStyle.Bold;
+        titleText.color = new Color(1f, 0.97f, 0.87f);
+        titleText.fontSize = Mathf.Max(titleText.fontSize, 62);
+        Outline outline = titleText.GetComponent<Outline>() ?? titleText.gameObject.AddComponent<Outline>();
+        outline.effectColor = new Color(0.12f, 0.07f, 0.12f, 0.92f);
+        outline.effectDistance = new Vector2(2.5f, -2.5f);
+        Shadow shadow = titleText.GetComponent<Shadow>() ?? titleText.gameObject.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0.2f, 0.08f, 0.02f, 0.68f);
+        shadow.effectDistance = new Vector2(7f, -7f);
     }
 }

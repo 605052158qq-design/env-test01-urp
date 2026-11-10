@@ -24,7 +24,7 @@ public sealed class ENVSceneAudio : MonoBehaviour
         source.loop = loop;
         source.volume = volume;
         source.spatialBlend = isMusic ? 0f : 1f;
-        source.rolloffMode = AudioRolloffMode.Linear;
+        source.rolloffMode = AudioRolloffMode.Logarithmic;
         source.minDistance = minDistance;
         source.maxDistance = Mathf.Max(minDistance, maxDistance);
         source.dopplerLevel = 0f;

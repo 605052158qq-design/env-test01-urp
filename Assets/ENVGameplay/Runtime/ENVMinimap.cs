@@ -24,17 +24,22 @@ public sealed class ENVMinimap : MonoBehaviour
     public Transform snowAnchor;
 
     [Header("Layout")]
-    [Range(140f, 420f)] public float mapDiameter = 224f;
+    [Range(140f, 420f)] public float mapDiameter = 290f;
     [Range(0.02f, 0.20f)] public float edgePadding = 0.075f;
     public Vector2 screenOffset = new Vector2(32f, -30f);
+    [Range(1f, 6f)]
+    [Tooltip("Scale of the map artwork inside the circular window.")]
+    public float mapArtworkScale = 3.7688f;
     [Tooltip("The illustrated dock's location in the source map, measured from bottom-left.")]
     public Vector2 dockMapPosition = new Vector2(0.62f, 0.145f);
     [Tooltip("The illustrated snow-mountain location, measured from bottom-left.")]
     public Vector2 snowMapPosition = new Vector2(0.52f, 0.83f);
 
     private RectTransform mapRect;
+    private RectTransform mapContent;
     private RectTransform playerMarker;
     private RectTransform objectiveMarker;
+    private Text objectiveTitleLabel;
     private Text statusLabel;
     private Canvas uiCanvas;
     private ENVStartScreen startScreen;
@@ -142,6 +147,11 @@ public sealed class ENVMinimap : MonoBehaviour
     {
         if (mapRect != null) return;
 
+        // Existing scene instances were authored at the old 224px size.
+        // Promote them at runtime as well as through the installer so the
+        // enlarged presentation is immediately visible after recompilation.
+        mapDiameter = Mathf.Max(mapDiameter, 290f);
+
         circleSprite = CreateCircleSprite(128, 1f);
         arrowSprite = CreateArrowSprite(96);
         objectiveSprite = CreateCircleSprite(64, 0.82f);
@@ -165,12 +175,14 @@ public sealed class ENVMinimap : MonoBehaviour
         rootRect.anchoredPosition = new Vector2(Mathf.Abs(screenOffset.x), screenOffset.y);
         rootRect.sizeDelta = new Vector2(mapDiameter + 10f, mapDiameter + 64f);
 
-        Image border = CreateImage("Circular Border", rootRect, circleSprite, new Color(0.04f, 0.12f, 0.17f, 0.94f));
+        Image border = CreateImage("Circular Border", rootRect, circleSprite, new Color(0.06f, 0.19f, 0.21f, 0.96f));
         RectTransform borderRect = border.rectTransform;
         borderRect.anchorMin = borderRect.anchorMax = new Vector2(0f, 1f);
         borderRect.pivot = new Vector2(0f, 1f);
         borderRect.anchoredPosition = Vector2.zero;
         borderRect.sizeDelta = new Vector2(mapDiameter + 10f, mapDiameter + 10f);
+        AddOutline(border, new Color(0.82f, 0.72f, 0.38f, 0.95f), 2f);
+        AddShadow(border, Color.black, new Vector2(1.5f, -2f));
 
         Image maskImage = CreateImage("Circular Mask", rootRect, circleSprite, Color.white);
         mapRect = maskImage.rectTransform;
@@ -181,13 +193,23 @@ public sealed class ENVMinimap : MonoBehaviour
         Mask mask = maskImage.gameObject.AddComponent<Mask>();
         mask.showMaskGraphic = false;
 
-        Image mapImage = CreateImage("Map Artwork", mapRect, CreateMapSprite(), Color.white);
+        mapContent = CreateRect("Map Content", mapRect);
+        mapContent.anchorMin = mapContent.anchorMax = new Vector2(0.5f, 0.5f);
+        mapContent.pivot = new Vector2(0.5f, 0.5f);
+        mapContent.sizeDelta = new Vector2(mapDiameter, mapDiameter);
+        mapContent.localScale = Vector3.one * mapArtworkScale;
+
+        Image mapImage = CreateImage("Map Artwork", mapContent, CreateMapSprite(), Color.white);
         Stretch(mapImage.rectTransform);
         mapImage.preserveAspect = true;
 
-        Image objective = CreateImage("Next Gem", mapRect, objectiveSprite, new Color(1f, 0.82f, 0.22f));
+        // Objective icons live under Map Content, not under the player UI.
+        // They therefore remain locked to their world/map coordinates while
+        // the artwork pans beneath the centered player arrow.
+        Image objective = CreateImage("Next Gem", mapContent, objectiveSprite, new Color(1f, 0.82f, 0.22f));
         objectiveMarker = objective.rectTransform;
         objectiveMarker.sizeDelta = new Vector2(19f, 19f);
+        objectiveMarker.localScale = Vector3.one / mapArtworkScale;
         AddOutline(objective, new Color(0.2f, 0.08f, 0.02f, 0.9f), 2f);
 
         Image marker = CreateImage("Player", mapRect, arrowSprite, new Color(1f, 1f, 1f));
@@ -195,18 +217,39 @@ public sealed class ENVMinimap : MonoBehaviour
         playerMarker.sizeDelta = new Vector2(25f, 31f);
         AddOutline(marker, new Color(0.03f, 0.16f, 0.23f, 0.95f), 2f);
 
-        Image captionBackground = CreateImage("Status Background", rootRect, null, new Color(0.015f, 0.05f, 0.08f, 0.78f));
+        Image captionBackground = CreateImage("Status Background", rootRect, null, new Color(0.015f, 0.05f, 0.08f, 0.48f));
         RectTransform captionRect = captionBackground.rectTransform;
         captionRect.anchorMin = captionRect.anchorMax = new Vector2(0f, 1f);
         captionRect.pivot = new Vector2(0f, 1f);
-        captionRect.anchoredPosition = new Vector2(0f, -mapDiameter - 18f);
-        captionRect.sizeDelta = new Vector2(mapDiameter + 10f, 47f);
+        captionRect.anchoredPosition = new Vector2(2f, -mapDiameter - 21f);
+        captionRect.sizeDelta = new Vector2(mapDiameter + 6f, 60f);
 
-        statusLabel = CreateText("Status", captionRect, 17, TextAnchor.MiddleCenter, Color.white);
-        Stretch(statusLabel.rectTransform);
-        statusLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
-        statusLabel.verticalOverflow = VerticalWrapMode.Overflow;
-        statusLabel.text = "探索小岛\n正在定位玩家";
+        Text diamond = CreateText("Objective Diamond", captionRect, 22, TextAnchor.MiddleCenter, new Color(1f, 0.83f, 0.32f));
+        RectTransform diamondRect = diamond.rectTransform;
+        diamondRect.anchorMin = diamondRect.anchorMax = new Vector2(0f, 1f);
+        diamondRect.pivot = new Vector2(0f, 1f);
+        diamondRect.anchoredPosition = new Vector2(13f, -6f);
+        diamondRect.sizeDelta = new Vector2(27f, 26f);
+        diamond.text = "◆";
+        AddShadow(diamond, new Color(0f, 0f, 0f, 0.8f), new Vector2(1f, -1f));
+
+        objectiveTitleLabel = CreateText("Objective Title", captionRect, 20, TextAnchor.MiddleLeft, new Color(1f, 0.86f, 0.42f));
+        RectTransform titleRect = objectiveTitleLabel.rectTransform;
+        titleRect.anchorMin = titleRect.anchorMax = new Vector2(0f, 1f);
+        titleRect.pivot = new Vector2(0f, 1f);
+        titleRect.anchoredPosition = new Vector2(42f, -4f);
+        titleRect.sizeDelta = new Vector2(mapDiameter - 34f, 29f);
+        objectiveTitleLabel.text = "寻找散落的光之宝石";
+        AddShadow(objectiveTitleLabel, new Color(0f, 0f, 0f, 0.8f), new Vector2(1f, -1f));
+
+        statusLabel = CreateText("Status", captionRect, 17, TextAnchor.MiddleLeft, new Color(0.94f, 0.97f, 0.98f));
+        RectTransform statusRect = statusLabel.rectTransform;
+        statusRect.anchorMin = statusRect.anchorMax = new Vector2(0f, 1f);
+        statusRect.pivot = new Vector2(0f, 1f);
+        statusRect.anchoredPosition = new Vector2(42f, -31f);
+        statusRect.sizeDelta = new Vector2(mapDiameter - 34f, 25f);
+        statusLabel.text = "已找到 0 / 7 · 正在定位";
+        AddShadow(statusLabel, new Color(0f, 0f, 0f, 0.75f), new Vector2(1f, -1f));
     }
 
     private void UpdatePlayerMarker()
@@ -215,7 +258,10 @@ public sealed class ENVMinimap : MonoBehaviour
         bool visible = player != null;
         if (playerMarker.gameObject.activeSelf != visible) playerMarker.gameObject.SetActive(visible);
         if (!visible) return;
-        playerMarker.anchoredPosition = WorldToMapPosition(player.position);
+        UpdateMapArtwork(player.position);
+        // This is a scrolling minimap: the player remains in the center while
+        // the zoomed map moves in the opposite direction.
+        playerMarker.anchoredPosition = Vector2.zero;
         playerMarker.localRotation = Quaternion.Euler(0f, 0f, -player.eulerAngles.y);
     }
 
@@ -225,7 +271,7 @@ public sealed class ENVMinimap : MonoBehaviour
         ENVGem nextGem = world != null ? world.NextGem : null;
         bool visible = nextGem != null;
         if (objectiveMarker.gameObject.activeSelf != visible) objectiveMarker.gameObject.SetActive(visible);
-        if (visible) objectiveMarker.anchoredPosition = WorldToMapPosition(nextGem.transform.position);
+        if (visible) objectiveMarker.anchoredPosition = WorldToMapLocalPosition(nextGem.transform.position);
     }
 
     private void UpdateStatus()
@@ -244,10 +290,18 @@ public sealed class ENVMinimap : MonoBehaviour
         string distance = string.Empty;
         if (player != null && nextGem != null)
             distance = " · 距离 " + Mathf.RoundToInt(Vector3.Distance(player.position, nextGem.transform.position)) + " 米";
-        statusLabel.text = "寻找散落的光之宝石\n已找到 " + found + " / " + total + distance;
+        statusLabel.text = "已找到 " + found + " / " + total + distance;
     }
 
-    private Vector2 WorldToMapPosition(Vector3 position)
+    private void UpdateMapArtwork(Vector3 playerPosition)
+    {
+        if (mapContent == null) return;
+        mapContent.localScale = Vector3.one * mapArtworkScale;
+        // mapContent is zoomed, so compensate from the unscaled coordinate.
+        mapContent.anchoredPosition = -WorldToMapLocalPosition(playerPosition) * mapArtworkScale;
+    }
+
+    private Vector2 WorldToMapLocalPosition(Vector3 position)
     {
         float width = Mathf.Max(0.001f, worldBounds.size.x);
         float depth = Mathf.Max(0.001f, worldBounds.size.z);
@@ -289,10 +343,9 @@ public sealed class ENVMinimap : MonoBehaviour
                 Mathf.InverseLerp(worldBounds.min.x, worldBounds.max.x, position.x),
                 Mathf.InverseLerp(worldBounds.min.z, worldBounds.max.z, position.z));
         }
-        float paddedSize = mapDiameter * (1f - edgePadding * 2f);
-        Vector2 result = new Vector2((mapUv.x - 0.5f) * paddedSize, (mapUv.y - 0.5f) * paddedSize);
-        float maximumRadius = mapDiameter * 0.5f - mapDiameter * edgePadding;
-        return Vector2.ClampMagnitude(result, maximumRadius);
+        // Do not clamp here: a scrolling map needs its content to continue
+        // moving beneath the centered player arrow at the circle edge.
+        return new Vector2((mapUv.x - 0.5f) * mapDiameter, (mapUv.y - 0.5f) * mapDiameter);
     }
 
     private Sprite CreateMapSprite()
@@ -346,6 +399,14 @@ public sealed class ENVMinimap : MonoBehaviour
         outline.effectColor = color;
         outline.effectDistance = new Vector2(distance, -distance);
         outline.useGraphicAlpha = false;
+    }
+
+    private static void AddShadow(Graphic graphic, Color color, Vector2 distance)
+    {
+        Shadow shadow = graphic.gameObject.AddComponent<Shadow>();
+        shadow.effectColor = color;
+        shadow.effectDistance = distance;
+        shadow.useGraphicAlpha = false;
     }
 
     private static Sprite CreateCircleSprite(int size, float radiusScale)

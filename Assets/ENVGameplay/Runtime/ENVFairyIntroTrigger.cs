@@ -31,6 +31,7 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
     private BoxCollider zone;
     private bool fired;
     private float timeScaleBeforeDialogue = 1f;
+    public bool FairyAcquired { get; private set; }
 
     private void Awake()
     {
@@ -72,12 +73,12 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
 
     internal void FinishDialogue()
     {
-        StartFairyFollow();
+        FairyAcquired = StartFairyFollow();
         ResumeGameplay();
         if (onDialogueFinished != null) onDialogueFinished.Invoke();
     }
 
-    private void StartFairyFollow()
+    private bool StartFairyFollow()
     {
         if (fairyFollower == null) fairyFollower = FindObjectOfType<ENVFairyFollower>(true);
         if (fairyFollower == null)
@@ -95,12 +96,13 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
         if (fairyFollower == null)
         {
             Debug.LogWarning("[ENV NPC Dialogue] No in-scene fairy visual was found for the post-dialogue follow.", this);
-            return;
+            return false;
         }
 
         fairyFollower.player = player;
         fairyFollower.relativeOffset = fairyFollowOffset;
         fairyFollower.BeginFollow();
+        return true;
     }
 
     private void PauseGameplay()

@@ -36,6 +36,7 @@ public static class ENVNpcDialogueInstaller
         trigger.dialogueFrame = frame;
         EditorUtility.SetDirty(trigger);
         ConfigurePostDialogueFollower(trigger);
+        ConfigureCompanionEnding();
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
         Debug.Log("[ENV NPC Dialogue] Bound the dialogue UI and configured the fairy to follow after dialogue completion.", trigger);
@@ -69,6 +70,7 @@ public static class ENVNpcDialogueInstaller
         EditorUtility.SetDirty(trigger);
 
         ConfigurePostDialogueFollower(trigger);
+        ConfigureCompanionEnding();
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         AssetDatabase.SaveAssets();
@@ -104,6 +106,20 @@ public static class ENVNpcDialogueInstaller
         trigger.fairyFollower = follower;
         EditorUtility.SetDirty(follower);
         EditorUtility.SetDirty(trigger);
+    }
+
+    private static void ConfigureCompanionEnding()
+    {
+        Texture2D endingBackground = AssetDatabase.LoadAssetAtPath<Texture2D>(
+            "Assets/UI/微信图片_20261111100300_606_1081.png");
+        if (endingBackground == null) return;
+
+        foreach (ENVEndSequenceOnCompletion ending in Object.FindObjectsOfType<ENVEndSequenceOnCompletion>(true))
+        {
+            Undo.RecordObject(ending, "Configure fairy companion ending");
+            ending.fairyCompanionEndingBackground = endingBackground;
+            EditorUtility.SetDirty(ending);
+        }
     }
 }
 #endif

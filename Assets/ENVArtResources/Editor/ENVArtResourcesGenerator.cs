@@ -13,6 +13,24 @@ public static class ENVArtResourcesGenerator
     private const string Mats = Out + "/Materials";
     private const string FX = Out + "/Prefabs";
     private const string Scenes = Out + "/Scenes";
+    private const string WaterfallVfxVersionLabel = "ENV_StylizedWaterfall_V2";
+    private const string WaterfallVfxSessionKey = "ENVArtResources.StylizedWaterfall.V2.Upgraded";
+
+    // Apply the authored V2 breakup once to the generated prefab after this script
+    // recompiles. The persistent asset label prevents it from touching later manual
+    // edits or repeatedly rewriting the prefab on every domain reload.
+    [InitializeOnLoadMethod]
+    private static void UpgradeWaterfallAfterReload()
+    {
+        EditorApplication.delayCall += () =>
+        {
+            if (SessionState.GetBool(WaterfallVfxSessionKey, false)) return;
+            SessionState.SetBool(WaterfallVfxSessionKey, true);
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(FX + "/VFX_WaterfallBase.prefab");
+            if (existing == null || Array.IndexOf(AssetDatabase.GetLabels(existing), WaterfallVfxVersionLabel) >= 0) return;
+            UpgradeStylizedWaterfallInternal();
+        };
+    }
 
     [MenuItem("Tools/ENV Art/01 - Generate VFX Prefabs and Materials")]
     public static void GenerateAll()
@@ -57,6 +75,42 @@ public static class ENVArtResourcesGenerator
         Debug.Log("[ENV Art] Generated 10 reusable particle prefabs, 3 water materials, 7 gem materials, 1 warm lamp material. " +
                   "Open 'Assets/ENVArtResources/Generated/Prefabs'. No map/gameplay files modified.");
         EditorUtility.DisplayDialog("ENV Art Resources", "Visual resources generated in:\n" + Out + "\n\nThe map and gameplay scripts were not modified.", "OK");
+    }
+
+    // Kept separate so the existing map's waterfall prefab can be upgraded without
+    // regenerating every unrelated VFX resource.
+    [MenuItem("Tools/ENV Art/01b - Upgrade Stylized Waterfall VFX")]
+    public static void UpgradeStylizedWaterfall()
+    {
+        UpgradeStylizedWaterfallInternal();
+    }
+
+    private static void UpgradeStylizedWaterfallInternal()
+    {
+        var alpha = Shader.Find("ENVArt/FX/ParticleAlpha");
+        var add = Shader.Find("ENVArt/FX/ParticleAdditive");
+        if (alpha == null || add == null)
+        {
+            Debug.LogError("[ENV Art] Particle shaders unavailable. Check Console for shader import errors.");
+            return;
+        }
+        Material streak = ParticleMat("M_FX_Streak", alpha, "T_FX_Streak");
+        Material soft = ParticleMat("M_FX_SoftGlow", add, "T_FX_SoftGlow");
+        Material ring = ParticleMat("M_FX_WaterRing", alpha, "T_FX_Ring");
+        Waterfall(streak, soft, ring);
+        var upgraded = AssetDatabase.LoadAssetAtPath<GameObject>(FX + "/VFX_WaterfallBase.prefab");
+        if (upgraded != null)
+        {
+            var labels = new System.Collections.Generic.List<string>(AssetDatabase.GetLabels(upgraded));
+            if (!labels.Contains(WaterfallVfxVersionLabel))
+            {
+                labels.Add(WaterfallVfxVersionLabel);
+                AssetDatabase.SetLabels(upgraded, labels.ToArray());
+            }
+        }
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("[ENV Art] Upgraded VFX_WaterfallBase: lip droplets, splash flecks, dense impact foam and mist.");
     }
 
     [MenuItem("Tools/ENV Art/02 - Create Isolated VFX Preview Scene")]
@@ -320,16 +374,32 @@ public static class ENVArtResourcesGenerator
     private static void Waterfall(Material streak,Material soft,Material ring)
     {
         var root=NewRoot("VFX_WaterfallBase");
-        var splashes=System(root,"Falling water streaks",streak,.3f,.65f,.07f,.2f,.6f,1.9f,32);
-        var shape=splashes.shape;shape.shapeType=ParticleSystemShapeType.Box;shape.scale=new Vector3(2.6f,.2f,.5f);
-        var vm=splashes.velocityOverLifetime;vm.enabled=true;vm.y=new ParticleSystem.MinMaxCurve(-2f,-.6f);
-        Tint(splashes,new Color(.55f,.94f,1f,.85f),Color.white);
-        var mist=System(root,"Foamy mist",soft,.3f,.8f,.18f,.55f,.08f,.45f,35);
-        var ms=mist.shape;ms.shapeType=ParticleSystemShapeType.Box;ms.scale=new Vector3(2.6f,.1f,.5f);
-        Tint(mist,new Color(.72f,.97f,1f,.35f),Color.white);
-        var rip=System(root,"Impact foam rings",ring,.6f,1f,.5f,.9f,0,0,5);
+        // The sheet shader carries the continuous water volume. Particles only sell
+        // breakup at the lip and impact, avoiding the old "rain under a blue Quad" look.
+        var lip=System(root,"Lip breakup droplets",streak,.35f,.7f,.025f,.085f,.9f,1.8f,46);
+        lip.transform.localPosition=new Vector3(0,.35f,0);
+        var lipShape=lip.shape;lipShape.shapeType=ParticleSystemShapeType.Box;lipShape.scale=new Vector3(2.15f,.06f,.32f);
+        var lipVelocity=lip.velocityOverLifetime;lipVelocity.enabled=true;lipVelocity.y=new ParticleSystem.MinMaxCurve(-2.7f,-1.25f);lipVelocity.x=new ParticleSystem.MinMaxCurve(-.22f,.22f);
+        var lipMain=lip.main;lipMain.maxParticles=150;
+        Tint(lip,new Color(.74f,.98f,1f,.82f),Color.white);
+
+        var splashes=System(root,"Impact foam flecks",streak,.28f,.62f,.045f,.16f,.65f,1.65f,88);
+        var shape=splashes.shape;shape.shapeType=ParticleSystemShapeType.Box;shape.scale=new Vector3(2.7f,.06f,.55f);
+        var splashVelocity=splashes.velocityOverLifetime;splashVelocity.enabled=true;splashVelocity.y=new ParticleSystem.MinMaxCurve(.16f,.85f);splashVelocity.x=new ParticleSystem.MinMaxCurve(-.55f,.55f);
+        var splashMain=splashes.main;splashMain.gravityModifier=.62f;splashMain.maxParticles=240;
+        Tint(splashes,new Color(.82f,1f,1f,.9f),Color.white);
+
+        var mist=System(root,"Foamy impact mist",soft,.6f,1.35f,.32f,.9f,.03f,.2f,24);
+        var ms=mist.shape;ms.shapeType=ParticleSystemShapeType.Box;ms.scale=new Vector3(2.85f,.08f,.7f);
+        mist.transform.localPosition=new Vector3(0,.08f,0);
+        var mistVelocity=mist.velocityOverLifetime;mistVelocity.enabled=true;mistVelocity.y=new ParticleSystem.MinMaxCurve(.12f,.38f);mistVelocity.x=new ParticleSystem.MinMaxCurve(-.1f,.1f);
+        var mistMain=mist.main;mistMain.maxParticles=100;
+        Tint(mist,new Color(.76f,.98f,1f,.24f),new Color(.92f,1f,1f,.32f));
+
+        var rip=System(root,"Impact foam rings",ring,.52f,.9f,.72f,1.22f,0,0,8);
         rip.GetComponent<ParticleSystemRenderer>().renderMode=ParticleSystemRenderMode.HorizontalBillboard;
-        Tint(rip,new Color(.7f,.98f,1f,.55f),Color.white);
+        var rippleSize=rip.sizeOverLifetime;rippleSize.enabled=true;rippleSize.size=new ParticleSystem.MinMaxCurve(1f,new AnimationCurve(new Keyframe(0,.32f),new Keyframe(1,1.85f)));
+        Tint(rip,new Color(.77f,1f,1f,.62f),Color.white);
         SavePrefab(root);
     }
     private static void RiverAmbient(Material soft)

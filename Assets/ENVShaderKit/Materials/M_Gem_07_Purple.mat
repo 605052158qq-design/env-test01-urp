@@ -97,7 +97,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _Dissolve: 0.42
+    - _Dissolve: 0
     - _DissolveEdgeIntensity: 2
     - _DissolveEdgeWidth: 0.07
     - _DissolveNoiseScale: 8

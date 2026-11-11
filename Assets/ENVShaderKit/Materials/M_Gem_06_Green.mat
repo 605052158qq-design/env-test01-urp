@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Gem_06_Green
-  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  m_Shader: {fileID: 4800000, guid: b4cc5c438afe52ac804fd53d246f36c4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -17,8 +17,7 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -41,6 +40,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DissolveNoiseTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -84,6 +87,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BaseAlpha: 0.42
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -93,20 +97,32 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _Dissolve: 0
+    - _DissolveEdgeIntensity: 2
+    - _DissolveEdgeWidth: 0.07
+    - _DissolveNoiseScale: 8
+    - _DissolveTexStrength: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EdgeWidth: 0.175
     - _Emission: 0.18
+    - _EmissionStrength: 0.86
     - _EnvironmentReflections: 1
+    - _FresnelPower: 3.2
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _InnerGlow: 0.28
     - _Metallic: 0
+    - _NoiseScale: 22.9
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _PulseAmount: 0.14
     - _PulseSpeed: 1.25
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RimAlphaBoost: 0.3
+    - _RimIntensity: 2.3
     - _RimPower: 2.85
     - _RimStrength: 1.05
     - _Smoothness: 0.5
@@ -121,6 +137,8 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.17, g: 0.83, b: 0.15, a: 1}
     - _Color: {r: 0.17, g: 0.83, b: 0.15, a: 1}
+    - _DissolveEdgeColor: {r: 1, g: 0.55, b: 0.12, a: 1}
+    - _EdgeColor: {r: 1.7683494, g: 2.2819831, b: 3.2041886, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0.48, g: 2.1, b: 0.16, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}

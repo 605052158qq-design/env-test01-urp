@@ -117,9 +117,9 @@ Material:
     - _DissolveTexStrength: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeWidth: 0.11
+    - _EdgeWidth: 0.175
     - _Emission: 0.18
-    - _EmissionStrength: 2
+    - _EmissionStrength: 0.86
     - _EnvironmentReflections: 1
     - _FresnelPower: 3.2
     - _GlossMapScale: 0
@@ -127,7 +127,7 @@ Material:
     - _GlossyReflections: 0
     - _InnerGlow: 0.28
     - _Metallic: 0
-    - _NoiseScale: 13
+    - _NoiseScale: 22.9
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _PulseAmount: 0.14
@@ -151,7 +151,7 @@ Material:
     - _BaseColor: {r: 1, g: 0.38, b: 0.06, a: 1}
     - _Color: {r: 1, g: 0.38, b: 0.06, a: 1}
     - _DissolveEdgeColor: {r: 1, g: 0.55, b: 0.12, a: 1}
-    - _EdgeColor: {r: 0.85, g: 1.4, b: 2.4, a: 1}
+    - _EdgeColor: {r: 1.7683494, g: 2.2819831, b: 3.2041886, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 2.8, g: 0.72, b: 0.11, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}

@@ -32,6 +32,7 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
     private bool fired;
     private float timeScaleBeforeDialogue = 1f;
     public bool FairyAcquired { get; private set; }
+    public bool EncounterStarted { get { return fired; } }
 
     private void Awake()
     {
@@ -116,7 +117,9 @@ public sealed class ENVFairyIntroTrigger : MonoBehaviour
             if (behaviour is ENVPrototypeThirdPersonController ||
                 behaviour is ENVPrototypeOrbitCamera ||
                 behaviour is ENVPlayerInteraction ||
-                behaviour is ENVGemInteractor)
+                behaviour is ENVGemInteractor ||
+                behaviour is ENVFootsteps ||
+                behaviour is ENVPlayerVisualAnimator)
             {
                 pausedBehaviours.Add(behaviour);
                 behaviour.enabled = false;

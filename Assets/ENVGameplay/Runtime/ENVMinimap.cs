@@ -13,6 +13,10 @@ public sealed class ENVMinimap : MonoBehaviour
     [Header("Map asset")]
     [Tooltip("The square map illustration shown under the circular UI mask.")]
     public Texture2D mapTexture;
+    [Tooltip("Optional supplied player arrow. Falls back to the temporary generated arrow when empty.")]
+    public Sprite playerArrowSprite;
+    [Tooltip("Optional supplied lower information panel artwork.")]
+    public Sprite statusBackgroundSprite;
 
     [Header("Scene references (optional; resolved automatically when empty)")]
     public Transform player;
@@ -74,8 +78,13 @@ public sealed class ENVMinimap : MonoBehaviour
         if (startScreen == null) startScreen = FindObjectOfType<ENVStartScreen>(true);
         if (boatArrival == null) boatArrival = FindObjectOfType<ENVBoatArrival>(true);
         bool menuIsOpen = startScreen != null && startScreen.menuRoot != null && startScreen.menuRoot.activeInHierarchy;
+        // The former condition only looked at BoatArrival.HasArrived.  Continue
+        // Game legitimately bypasses that cinematic, leaving the map hidden for
+        // the entire play session.  The menu is the authority on when controls
+        // have actually been released to the player.
         bool arrivalFinished = boatArrival == null || !boatArrival.CanPlay || boatArrival.HasArrived;
-        bool shouldShow = !menuIsOpen && arrivalFinished;
+        bool gameplayReady = startScreen != null ? startScreen.GameplayReady : arrivalFinished;
+        bool shouldShow = !menuIsOpen && gameplayReady;
         if (uiCanvas != null) uiCanvas.enabled = shouldShow;
         if (!shouldShow) return;
 
@@ -153,7 +162,7 @@ public sealed class ENVMinimap : MonoBehaviour
         mapDiameter = Mathf.Max(mapDiameter, 290f);
 
         circleSprite = CreateCircleSprite(128, 1f);
-        arrowSprite = CreateArrowSprite(96);
+        arrowSprite = playerArrowSprite != null ? playerArrowSprite : CreateArrowSprite(96);
         objectiveSprite = CreateCircleSprite(64, 0.82f);
 
         GameObject canvasObject = new GameObject("ENV Minimap UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
@@ -175,14 +184,15 @@ public sealed class ENVMinimap : MonoBehaviour
         rootRect.anchoredPosition = new Vector2(Mathf.Abs(screenOffset.x), screenOffset.y);
         rootRect.sizeDelta = new Vector2(mapDiameter + 10f, mapDiameter + 64f);
 
-        Image border = CreateImage("Circular Border", rootRect, circleSprite, new Color(0.06f, 0.19f, 0.21f, 0.96f));
+        // Keep the frame deliberately neutral: the supplied map is the visual
+        // treatment now, rather than the old dark/gold prototype frame.
+        Image border = CreateImage("Circular Border", rootRect, circleSprite, new Color(1f, 1f, 1f, 0.92f));
         RectTransform borderRect = border.rectTransform;
         borderRect.anchorMin = borderRect.anchorMax = new Vector2(0f, 1f);
         borderRect.pivot = new Vector2(0f, 1f);
         borderRect.anchoredPosition = Vector2.zero;
         borderRect.sizeDelta = new Vector2(mapDiameter + 10f, mapDiameter + 10f);
-        AddOutline(border, new Color(0.82f, 0.72f, 0.38f, 0.95f), 2f);
-        AddShadow(border, Color.black, new Vector2(1.5f, -2f));
+        AddOutline(border, new Color(0.08f, 0.22f, 0.27f, 0.78f), 2f);
 
         Image maskImage = CreateImage("Circular Mask", rootRect, circleSprite, Color.white);
         mapRect = maskImage.rectTransform;
@@ -217,7 +227,8 @@ public sealed class ENVMinimap : MonoBehaviour
         playerMarker.sizeDelta = new Vector2(25f, 31f);
         AddOutline(marker, new Color(0.03f, 0.16f, 0.23f, 0.95f), 2f);
 
-        Image captionBackground = CreateImage("Status Background", rootRect, null, new Color(0.015f, 0.05f, 0.08f, 0.48f));
+        Image captionBackground = CreateImage("Status Background", rootRect, statusBackgroundSprite, new Color(1f, 1f, 1f, 0.88f));
+        if (statusBackgroundSprite == null) captionBackground.color = new Color(0.015f, 0.05f, 0.08f, 0.48f);
         RectTransform captionRect = captionBackground.rectTransform;
         captionRect.anchorMin = captionRect.anchorMax = new Vector2(0f, 1f);
         captionRect.pivot = new Vector2(0f, 1f);

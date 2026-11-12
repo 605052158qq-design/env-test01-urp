@@ -37,7 +37,7 @@ public static class ENVStartScreenSetup
         if (legacyBackground != null) legacyBackground.gameObject.SetActive(false);
 
         ENVMenuVideoBackground background = GetOrAdd<ENVMenuVideoBackground>(menu);
-        background.suppliedVideo = AssetDatabase.LoadAssetAtPath<VideoClip>(UiPath + "开始页面_4k.mp4");
+        background.suppliedVideo = AssetDatabase.LoadAssetAtPath<VideoClip>(UiPath + "开始页面_4k_02.mp4");
         background.playOnAwake = true;
         background.muteAudio = true;
         Image title = FullScreenImage(menu.transform, "Title", LoadSprite("主界面_标题ui.png"));
@@ -90,7 +90,7 @@ public static class ENVStartScreenSetup
         EditorUtility.SetDirty(root);
         EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
-        Debug.Log("[ENV L10] Menu now uses 开始页面_4k.mp4 as its looping background. Start plays the placeholder docking handoff, then L06 docks the real boat.", root);
+        Debug.Log("[ENV L10] Menu now uses 开始页面_4k_02.mp4 as its looping background. Start plays the placeholder docking handoff, then L06 docks the real boat.", root);
     }
 
     [MenuItem("Tools/ENV Test01/14 - Validate Start Screen (Play + Screenshot)")]

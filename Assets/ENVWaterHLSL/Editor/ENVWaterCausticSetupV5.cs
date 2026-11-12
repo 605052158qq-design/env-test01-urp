@@ -36,6 +36,37 @@ public static class ENVWaterCausticSetupV5
         Apply(convertShader: true);
     }
 
+    [MenuItem("Tools/ENV Water/06 - Assign Scene Stylized Water to Gray1 (Blue Gem)")]
+    private static void AssignSceneWaterToBlueRecovery()
+    {
+        const uint RecoveryBits = 0xFEu; // hui1..hui7 are Rendering Layer bits 1..7.
+        const uint BlueBit = 1u << 1;
+        int changed = 0;
+        foreach (Renderer renderer in Resources.FindObjectsOfTypeAll<Renderer>())
+        {
+            if (renderer == null || !renderer.gameObject.scene.IsValid() || EditorUtility.IsPersistent(renderer)) continue;
+            bool usesStylizedWater = false;
+            foreach (Material material in renderer.sharedMaterials)
+            {
+                if (material != null && material.shader != null && material.shader.name == ShaderName)
+                {
+                    usesStylizedWater = true;
+                    break;
+                }
+            }
+            if (!usesStylizedWater) continue;
+            uint newMask = (renderer.renderingLayerMask & ~RecoveryBits) | BlueBit;
+            if (renderer.renderingLayerMask == newMask) continue;
+            Undo.RecordObject(renderer, "Assign stylized water to Gray1");
+            renderer.renderingLayerMask = newMask;
+            EditorUtility.SetDirty(renderer);
+            changed++;
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().IsValid())
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        Debug.Log("[ENV Water] Assigned " + changed + " stylized-water Renderers to Gray1 / Blue Gem recovery.");
+    }
+
     private static void Apply(bool convertShader)
     {
         var target = Shader.Find(ShaderName);

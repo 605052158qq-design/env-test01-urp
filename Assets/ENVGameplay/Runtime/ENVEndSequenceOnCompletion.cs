@@ -31,17 +31,21 @@ public sealed class ENVEndSequenceOnCompletion : MonoBehaviour
             ENVFairyCompanionEndingUI.Show(fairyCompanionEndingBackground);
             return;
         }
-        if (endingVideo != null)
-        {
-            endingVideo.Play();
-            return;
-        }
-        if (titleUi == null) titleUi = ENVRegionTitleUI.Instance;
-        if (titleUi != null) titleUi.Show(completionMessage, 4f);
+        // No companion branch: after the same post-recovery delay, return
+        // directly to the first menu rather than leaving a frozen completion card.
+        ReturnToMainMenu();
     }
 
     /// <summary>Invoked by the V1 debug GUI when validating the end branch.</summary>
     public void DebugComplete() { OnDone(); }
+
+    public static void ReturnToMainMenu()
+    {
+        ENVAudioBank bank = FindObjectOfType<ENVAudioBank>(true);
+        if (bank != null) bank.StopGameplayAudio();
+        ENVStartScreen menu = FindObjectOfType<ENVStartScreen>(true);
+        if (menu != null) menu.ShowMenu();
+    }
 }
 
 /// <summary>Interactive ending shown only after the player has gained the fairy companion.</summary>
@@ -63,6 +67,7 @@ public sealed class ENVFairyCompanionEndingUI : MonoBehaviour
     private Text message;
     private int lineIndex;
     private bool readyForInput;
+    private bool closing;
     private float timeScaleBeforeEnding;
 
     public static void Show(Texture2D backgroundTexture)
@@ -96,7 +101,6 @@ public sealed class ENVFairyCompanionEndingUI : MonoBehaviour
         message.verticalOverflow = VerticalWrapMode.Overflow;
         message.lineSpacing = 1.18f;
         SetAnchors(message.rectTransform, new Vector2(0.12f, 0.07f), new Vector2(0.88f, 0.24f));
-        AddOutline(message.gameObject);
 
         fade = CreateImage("Ending Fade", transform, Color.black);
         Stretch(fade.rectTransform, Vector2.zero, Vector2.one);
@@ -112,9 +116,25 @@ public sealed class ENVFairyCompanionEndingUI : MonoBehaviour
     private void Update()
     {
         if (!readyForInput || !AdvancePressed()) return;
-        if (lineIndex >= Lines.Length - 1) return;
+        if (lineIndex >= Lines.Length - 1)
+        {
+            if (!closing) StartCoroutine(CloseToMenu());
+            return;
+        }
         lineIndex++;
         message.text = Lines[lineIndex];
+    }
+
+    private IEnumerator CloseToMenu()
+    {
+        closing = true;
+        readyForInput = false;
+        yield return Fade(0f, 1f, 0.45f);
+        // Restore the previous scale before the menu records the current one as
+        // its own pause baseline.
+        Time.timeScale = timeScaleBeforeEnding;
+        ENVEndSequenceOnCompletion.ReturnToMainMenu();
+        Destroy(gameObject);
     }
 
     private IEnumerator Fade(float from, float to, float seconds)
@@ -166,13 +186,6 @@ public sealed class ENVFairyCompanionEndingUI : MonoBehaviour
         text.color = color;
         text.raycastTarget = false;
         return text;
-    }
-
-    private static void AddOutline(GameObject target)
-    {
-        Outline outline = target.AddComponent<Outline>();
-        outline.effectColor = new Color(0f, 0f, 0f, 0.85f);
-        outline.effectDistance = new Vector2(2f, -2f);
     }
 
     private static void Stretch(RectTransform rect, Vector2 min, Vector2 max)

@@ -44,6 +44,22 @@ public static class ENVV1WorldSetup
                   ". Boat validation is handled by the artist-authored Animation clip.", artRoot);
     }
 
+    [MenuItem("Tools/ENV Scene Content/05 - Add MeshColliders to Current all_mingming")]
+    public static void AddCollidersToCurrentActiveMap()
+    {
+        Transform artRoot = FindSceneTransform("all_mingming");
+        if (artRoot == null || !artRoot.gameObject.activeInHierarchy)
+        {
+            Debug.LogError("[ENV Map Collider] Could not find an active scene object named all_mingming.");
+            return;
+        }
+        int colliders = AddArtColliders(artRoot);
+        Physics.SyncTransforms();
+        Save();
+        Debug.Log("[ENV Map Collider] Added " + colliders +
+                  " new MeshColliders below the CURRENT active all_mingming and refreshed all existing ones.", artRoot);
+    }
+
     private static int AddArtColliders(Transform root)
     {
         int count = 0;

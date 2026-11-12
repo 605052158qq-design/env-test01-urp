@@ -14,7 +14,13 @@ public sealed class ENVNpcDialogueUI : MonoBehaviour
     {
         public Speaker speaker;
         public string text;
-        public Line(Speaker speaker, string text) { this.speaker = speaker; this.text = text; }
+        public bool blackScreen;
+        public Line(Speaker speaker, string text, bool blackScreen = false)
+        {
+            this.speaker = speaker;
+            this.text = text;
+            this.blackScreen = blackScreen;
+        }
     }
 
     private static ENVNpcDialogueUI active;
@@ -30,6 +36,7 @@ public sealed class ENVNpcDialogueUI : MonoBehaviour
     private Text speakerText;
     private Text bodyText;
     private Text continueText;
+    private Text blackScreenText;
     private Image fadeOverlay;
 
     public static bool IsShowingFor(ENVFairyIntroTrigger trigger)
@@ -117,6 +124,13 @@ public sealed class ENVNpcDialogueUI : MonoBehaviour
         continueText.alignment = TextAnchor.MiddleRight;
         continueText.text = "点击 / 空格继续";
 
+        blackScreenText = CreateText("Black Screen Text", transform, 42, FontStyle.Normal, Color.white);
+        SetAnchors(blackScreenText.rectTransform, new Vector2(0.18f, 0.38f), new Vector2(0.82f, 0.62f));
+        blackScreenText.alignment = TextAnchor.MiddleCenter;
+        blackScreenText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        blackScreenText.verticalOverflow = VerticalWrapMode.Overflow;
+        blackScreenText.lineSpacing = 1.25f;
+
         lines = CreateLines();
         SetContentVisible(false);
 
@@ -173,10 +187,19 @@ public sealed class ENVNpcDialogueUI : MonoBehaviour
     {
         Line line = lines[index];
         bool narration = line.speaker == Speaker.Narrator;
-        shade.color = new Color(0f, 0f, 0f, narration ? 0.56f : 0.18f);
+        bool blackScreen = line.blackScreen;
+        background.enabled = !blackScreen;
+        shade.enabled = true;
+        shade.color = new Color(0f, 0f, 0f, blackScreen ? 1f : narration ? 0.56f : 0.18f);
         // Match the supplied layout: only the current speaker is on screen.
-        traveler.enabled = line.speaker == Speaker.Traveler && traveler.texture != null;
-        fairy.enabled = line.speaker == Speaker.Fairy && fairy.texture != null;
+        frame.enabled = !blackScreen;
+        traveler.enabled = !blackScreen && line.speaker == Speaker.Traveler && traveler.texture != null;
+        fairy.enabled = !blackScreen && line.speaker == Speaker.Fairy && fairy.texture != null;
+        blackScreenText.enabled = blackScreen;
+        blackScreenText.text = blackScreen ? line.text : string.Empty;
+        speakerText.enabled = !blackScreen;
+        bodyText.enabled = !blackScreen;
+        continueText.enabled = !blackScreen;
         speakerText.text = line.speaker == Speaker.Traveler ? "旅行家" :
             line.speaker == Speaker.Fairy ? "浮光精灵" : "旁白";
         bodyText.text = line.text;
@@ -193,6 +216,7 @@ public sealed class ENVNpcDialogueUI : MonoBehaviour
         speakerText.enabled = visible;
         bodyText.enabled = visible;
         continueText.enabled = visible;
+        blackScreenText.enabled = false;
     }
 
     private static Image CreateImage(string name, Transform parent, Sprite sprite, Color color)
@@ -286,8 +310,8 @@ public sealed class ENVNpcDialogueUI : MonoBehaviour
         // do not add character-count pagination here.
         return new[]
         {
-            new Line(Speaker.Narrator, "森林深处，树叶忽然沙沙作响。"),
-            new Line(Speaker.Narrator, "旅行家停下脚步，警惕地望向声音传来的方向。一点微弱的蓝光从树后闪过。"),
+            new Line(Speaker.Narrator, "森林深处，树叶忽然沙沙作响。", true),
+            new Line(Speaker.Narrator, "旅行家停下脚步，警惕地望向声音传来的方向。一点微弱的蓝光从树后闪过。", true),
             new Line(Speaker.Traveler, "谁在那里！？"),
             new Line(Speaker.Fairy, "别害怕别害怕……我不是故意吓你的。"),
             new Line(Speaker.Traveler, "你是什么？"),
@@ -337,9 +361,9 @@ public sealed class ENVNpcDialogueUI : MonoBehaviour
             new Line(Speaker.Fairy, "……谢谢你。"),
             new Line(Speaker.Fairy, "请让我跟随你一起寻找吧。"),
             new Line(Speaker.Fairy, "我没有多少力量，但只要靠近宝石碎片，我就能感觉到它发出的光。"),
-            new Line(Speaker.Narrator, "浮光精灵缓缓飞到旅行家身边，原本微弱的蓝光稍稍明亮了一些。"),
-            new Line(Speaker.Narrator, "旅行家，我们出发吧。"),
-            new Line(Speaker.Narrator, "在浮光小镇彻底变成一座无人记得的空城之前。")
+            new Line(Speaker.Narrator, "浮光精灵缓缓飞到旅行家身边，原本微弱的蓝光稍稍明亮了一些。", true),
+            new Line(Speaker.Narrator, "旅行家，我们出发吧。", true),
+            new Line(Speaker.Narrator, "在浮光小镇彻底变成一座无人记得的空城之前。", true)
         };
     }
 }

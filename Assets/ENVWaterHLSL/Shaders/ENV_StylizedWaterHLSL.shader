@@ -67,10 +67,13 @@ Shader "ENV/Water/StylizedWaterHLSL"
             #pragma fragment Frag
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/ENVMaterialColorRecovery.hlsl"
 
             TEXTURE2D(_RenderTexture); SAMPLER(sampler_RenderTexture);
             TEXTURE2D(_RippleNoiseTex); SAMPLER(sampler_RippleNoiseTex);
@@ -97,7 +100,12 @@ Shader "ENV/Water/StylizedWaterHLSL"
                 float _ReflectionFlipY, _ReflectionUseAlpha;
             CBUFFER_END
 
-            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
@@ -105,6 +113,7 @@ Shader "ENV/Water/StylizedWaterHLSL"
                 float2 uv : TEXCOORD1;
                 float4 screenPos : TEXCOORD2;
                 float eyeDepth : TEXCOORD3;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             // Small deterministic world-space noise. No FBX normals/tangents are used.
@@ -137,6 +146,8 @@ Shader "ENV/Water/StylizedWaterHLSL"
             Varyings Vert(Attributes v)
             {
                 Varyings o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
                 float3 ws = TransformObjectToWorld(v.positionOS.xyz);
                 // Small optional vertical ripple; keep all lighting normals world-up.
                 float f = max(_WaveFrequency, 0.01);
@@ -151,6 +162,7 @@ Shader "ENV/Water/StylizedWaterHLSL"
             }
             half4 Frag(Varyings i) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(i);
                 float2 uv = i.screenPos.xy / max(i.screenPos.w, 0.0001);
                 float rawDepth = SampleSceneDepth(uv);
                 float sceneEyeDepth = LinearEyeDepth(rawDepth, _ZBufferParams);
@@ -237,6 +249,9 @@ Shader "ENV/Water/StylizedWaterHLSL"
                     float w = saturate(_ReflectionIntensity * (0.2 + 0.8 * fresnel) * validity);
                     waterCol = lerp(waterCol, reflectionSample.rgb, w);
                 }
+                // Uses exactly the same global gemstone circles and per-renderer
+                // Rendering Layer Mask rules as URP Lit.
+                waterCol = ApplyENVMaterialColorRecovery(waterCol, i.positionWS);
                 return half4(waterCol, 0.94);
             }
             ENDHLSL

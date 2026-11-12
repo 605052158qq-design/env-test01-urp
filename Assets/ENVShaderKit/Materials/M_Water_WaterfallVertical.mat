@@ -24,7 +24,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: b2f7718ac747412a9dfed40cf63bf965, type: 3}
+        m_Texture: {fileID: 2800000, guid: 8bc7ac3103e31fb4980207a52f1d5e66, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FoamMap:
@@ -42,7 +42,10 @@ Material:
     m_Ints: []
     m_Floats:
     - _Breakup: 0.35
+    - _DistortionSpeed: 0.04
+    - _DistortionStrength: 0.11
     - _FallSpeed: 1.15
+    - _FlowSpeed: 0.3
     - _FoamTexStrength: 0.55
     - _MaskPower: 1
     - _NoiseScale: 2.6
@@ -51,6 +54,7 @@ Material:
     - _Opacity: 0.7
     - _StreakDensity: 9
     - _StreakStrength: 0.55
+    - _WhiteStreakSpacing: 1
     m_Colors:
     - _BaseColor: {r: 0.08, g: 0.53, b: 0.8, a: 0.86}
     - _HighlightColor: {r: 0.76, g: 0.98, b: 1.25, a: 1}

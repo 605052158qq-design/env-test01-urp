@@ -15,6 +15,7 @@ public static class ENVArtResourcesGenerator
     private const string Scenes = Out + "/Scenes";
     private const string WaterfallVfxVersionLabel = "ENV_StylizedWaterfall_V2";
     private const string WaterfallVfxSessionKey = "ENVArtResources.StylizedWaterfall.V2.Upgraded";
+    private const string StylizedWaterfallFlowPath = "Assets/ENVShaderKit/V3Textures/T_Waterfall_StylizedFlow_v2.png";
 
     // Apply the authored V2 breakup once to the generated prefab after this script
     // recompiles. The persistent asset label prevents it from touching later manual
@@ -24,6 +25,7 @@ public static class ENVArtResourcesGenerator
     {
         EditorApplication.delayCall += () =>
         {
+            ApplyStylizedWaterfallFlowTexture();
             if (SessionState.GetBool(WaterfallVfxSessionKey, false)) return;
             SessionState.SetBool(WaterfallVfxSessionKey, true);
             var existing = AssetDatabase.LoadAssetAtPath<GameObject>(FX + "/VFX_WaterfallBase.prefab");
@@ -97,6 +99,7 @@ public static class ENVArtResourcesGenerator
         Material streak = ParticleMat("M_FX_Streak", alpha, "T_FX_Streak");
         Material soft = ParticleMat("M_FX_SoftGlow", add, "T_FX_SoftGlow");
         Material ring = ParticleMat("M_FX_WaterRing", alpha, "T_FX_Ring");
+        ApplyStylizedWaterfallFlowTexture();
         Waterfall(streak, soft, ring);
         var upgraded = AssetDatabase.LoadAssetAtPath<GameObject>(FX + "/VFX_WaterfallBase.prefab");
         if (upgraded != null)
@@ -111,6 +114,28 @@ public static class ENVArtResourcesGenerator
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log("[ENV Art] Upgraded VFX_WaterfallBase: lip droplets, splash flecks, dense impact foam and mist.");
+    }
+
+    private static void ApplyStylizedWaterfallFlowTexture()
+    {
+        var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(StylizedWaterfallFlowPath);
+        if (texture == null)
+        {
+            Debug.LogWarning("[ENV Art] Stylized waterfall flow texture has not imported yet: " + StylizedWaterfallFlowPath);
+            return;
+        }
+        string[] materials =
+        {
+            "Assets/ENVShaderKit/Materials/M_Water_WaterfallSheet.mat",
+            "Assets/ENVShaderKit/Materials/M_Water_WaterfallVertical.mat"
+        };
+        foreach (string path in materials)
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (material == null || material.GetTexture("_BaseMap") == texture) continue;
+            material.SetTexture("_BaseMap", texture);
+            EditorUtility.SetDirty(material);
+        }
     }
 
     [MenuItem("Tools/ENV Art/02 - Create Isolated VFX Preview Scene")]

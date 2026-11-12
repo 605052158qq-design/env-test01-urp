@@ -42,6 +42,8 @@ public sealed class ENVStartScreen : MonoBehaviour
     private AudioSource menuAudioSource;
     private int hoveredAction;
     public bool IsMenuShowing { get { return menuRoot != null && menuRoot.activeInHierarchy; } }
+    /// <summary>True only once the opening video/boat handoff has released player input.</summary>
+    public bool GameplayReady { get; private set; }
 
     private void Awake()
     {
@@ -120,6 +122,7 @@ public sealed class ENVStartScreen : MonoBehaviour
     public void ShowMenu()
     {
         introPending = false;
+        GameplayReady = false;
         hoveredAction = 0;
         if (menuRoot != null) menuRoot.SetActive(true);
         SetGameplayInput(false);
@@ -130,6 +133,7 @@ public sealed class ENVStartScreen : MonoBehaviour
     public void BeginGame()
     {
         if (introPending) return;
+        GameplayReady = false;
         if (menuRoot != null) menuRoot.SetActive(false);
         ResumeWorld();
         SetWorldVisible(true);
@@ -147,6 +151,7 @@ public sealed class ENVStartScreen : MonoBehaviour
 
     public void ContinueGame()
     {
+        GameplayReady = false;
         if (menuRoot != null) menuRoot.SetActive(false);
         ResumeWorld();
         SetWorldVisible(true);
@@ -184,6 +189,7 @@ public sealed class ENVStartScreen : MonoBehaviour
         ResumeWorld();
         SetWorldVisible(true);
         SetGameplayInput(true);
+        GameplayReady = true;
     }
 
     private void PauseWorld()

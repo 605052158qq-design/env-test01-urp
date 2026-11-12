@@ -24,7 +24,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 8bc7ac3103e31fb4980207a52f1d5e66, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _FoamMap:
@@ -41,21 +41,45 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BodyOpacity: 0.58
+    - _BottomFade: 0.18
     - _Breakup: 0.85
+    - _BreakupMax: 0.76
+    - _BreakupMin: 0.27
     - _DistortionSpeed: 0.094
     - _DistortionStrength: 0.083
     - _FallSpeed: 2.4
     - _FlowSpeed: 0.258
     - _FoamTexStrength: 1.56
+    - _LowerFoamStrength: 0.72
     - _MaskPower: 1.11
     - _NoiseScale: 1
     - _NoiseSpeed: 0.8
     - _NoiseStrength: 0.081
     - _Opacity: 0.59
+    - _RibbonCenterJitter: 0.25
+    - _RibbonDensity: 8.5
+    - _RibbonEdgeSoftness: 0.075
+    - _RibbonNoiseWarp: 0.82
+    - _RibbonWidthMax: 0.29
+    - _RibbonWidthMin: 0.1
+    - _RibbonWobbleAmplitude: 0.035
+    - _RibbonWobbleFrequency: 7
+    - _RibbonWobbleVariation: 5
+    - _SideFadeMax: 0.105
+    - _SideFadeMin: 0.005
     - _StreakDensity: 3.5
     - _StreakStrength: 0.72
+    - _TopFade: 0.137
+    - _WhiteOpacity: 0.72
     - _WhiteStreakSpacing: 1.865
     m_Colors:
+    - _AquaColor: {r: 0.06, g: 0.76, b: 0.93, a: 1}
     - _BaseColor: {r: 0.08, g: 0.67, b: 0.95, a: 0.84}
+    - _DeepColor: {r: 0.025, g: 0.34, b: 0.62, a: 1}
+    - _FlowTextureTiling: {r: 1, g: 1.35, b: 0, a: 0}
+    - _FoamColor: {r: 0.82, g: 1.22, b: 1.35, a: 1}
+    - _FoamTextureTiling: {r: 1.5, g: 2.45, b: 0, a: 0}
     - _HighlightColor: {r: 0.8, g: 1.1, b: 1.42, a: 1}
+    - _NoiseTextureTiling: {r: 2.15, g: 3.6, b: 0, a: 0}
   m_BuildTextureStacks: []

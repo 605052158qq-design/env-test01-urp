@@ -8,7 +8,15 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
 {
     public static ENVRegionTitleUI Instance { get; private set; }
     public Text titleText;
+    [Tooltip("Runtime image used for the supplied hand-drawn regional title cards.")]
+    public Image titleImage;
     public CanvasGroup group;
+    [Header("Supplied title artwork")]
+    public Sprite dockTitle;
+    public Sprite squareTitle;
+    public Sprite gardenTitle;
+    public Sprite forestTitle;
+    public Sprite snowTitle;
     [Min(0.1f)] public float defaultShowSeconds = 2.2f;
     [Min(0f)] public float fadeSeconds = 0.5f;
     private Coroutine routine;
@@ -17,8 +25,12 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
     {
         if (Instance != null && Instance != this) { enabled = false; return; }
         Instance = this;
-        if (titleText == null) CreateDefaultUI();
-        else if (group == null) group = titleText.GetComponent<CanvasGroup>() ?? titleText.gameObject.AddComponent<CanvasGroup>();
+        if (titleText == null && titleImage == null) CreateDefaultUI();
+        else if (group == null)
+        {
+            GameObject target = titleText != null ? titleText.gameObject : titleImage.gameObject;
+            group = target.GetComponent<CanvasGroup>() ?? target.AddComponent<CanvasGroup>();
+        }
         ApplyTitleStyle();
         if (group != null) group.alpha = 0f;
     }
@@ -33,9 +45,23 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         var scaler = canvasGO.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
-        GameObject textGO = new GameObject("Area Name", typeof(RectTransform), typeof(CanvasGroup), typeof(Text), typeof(Outline), typeof(Shadow));
-        textGO.transform.SetParent(canvasGO.transform, false);
-        group = textGO.GetComponent<CanvasGroup>();
+        GameObject container = new GameObject("Area Title Container", typeof(RectTransform), typeof(CanvasGroup));
+        container.transform.SetParent(canvasGO.transform, false);
+        group = container.GetComponent<CanvasGroup>();
+        RectTransform containerRect = container.GetComponent<RectTransform>();
+        containerRect.anchorMin = new Vector2(0.15f, 0.65f);
+        containerRect.anchorMax = new Vector2(0.85f, 0.81f);
+        containerRect.offsetMin = containerRect.offsetMax = Vector2.zero;
+
+        GameObject imageGO = new GameObject("Area Name Artwork", typeof(RectTransform), typeof(Image));
+        imageGO.transform.SetParent(container.transform, false);
+        titleImage = imageGO.GetComponent<Image>();
+        titleImage.preserveAspect = true;
+        titleImage.raycastTarget = false;
+        Stretch(titleImage.rectTransform);
+
+        GameObject textGO = new GameObject("Area Name", typeof(RectTransform), typeof(Text));
+        textGO.transform.SetParent(container.transform, false);
         titleText = textGO.GetComponent<Text>();
         titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         titleText.fontSize = 68;
@@ -44,21 +70,29 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         titleText.color = new Color(1f, 0.97f, 0.87f);
         titleText.raycastTarget = false;
         titleText.horizontalOverflow = HorizontalWrapMode.Overflow;
-        var rect = titleText.rectTransform;
-        rect.anchorMin = new Vector2(0.15f, 0.65f);
-        rect.anchorMax = new Vector2(0.85f, 0.81f);
-        rect.offsetMin = rect.offsetMax = Vector2.zero;
+        Stretch(titleText.rectTransform);
     }
     public void Show(string title, float seconds = -1f)
     {
-        if (titleText == null || group == null) return;
+        if (group == null) return;
         if (routine != null) StopCoroutine(routine);
         routine = StartCoroutine(ShowRoutine(title, seconds < 0f ? defaultShowSeconds : seconds));
     }
     private IEnumerator ShowRoutine(string title, float time)
     {
-        titleText.text = title;
-        titleText.rectTransform.localScale = Vector3.one * 0.86f;
+        Sprite suppliedArtwork = FindArtwork(title);
+        bool hasArtwork = suppliedArtwork != null && titleImage != null;
+        if (titleImage != null)
+        {
+            titleImage.sprite = suppliedArtwork;
+            titleImage.enabled = hasArtwork;
+        }
+        if (titleText != null)
+        {
+            titleText.enabled = !hasArtwork;
+            titleText.text = title;
+            titleText.rectTransform.localScale = Vector3.one * 0.86f;
+        }
         float enter = 0f;
         const float enterSeconds = 0.22f;
         while (enter < enterSeconds)
@@ -66,11 +100,13 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
             enter += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(enter / enterSeconds);
             group.alpha = t;
-            titleText.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.86f, 1f, 1f - Mathf.Pow(1f - t, 3f));
+            if (titleText != null) titleText.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.86f, 1f, 1f - Mathf.Pow(1f - t, 3f));
+            if (titleImage != null) titleImage.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.92f, 1f, 1f - Mathf.Pow(1f - t, 3f));
             yield return null;
         }
         group.alpha = 1f;
-        titleText.rectTransform.localScale = Vector3.one;
+        if (titleText != null) titleText.rectTransform.localScale = Vector3.one;
+        if (titleImage != null) titleImage.rectTransform.localScale = Vector3.one;
         yield return new WaitForSecondsRealtime(Mathf.Max(0f, time));
         float elapsed = 0f;
         float dur = Mathf.Max(0.01f, fadeSeconds);
@@ -90,11 +126,23 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         titleText.fontStyle = FontStyle.Bold;
         titleText.color = new Color(1f, 0.97f, 0.87f);
         titleText.fontSize = Mathf.Max(titleText.fontSize, 62);
-        Outline outline = titleText.GetComponent<Outline>() ?? titleText.gameObject.AddComponent<Outline>();
-        outline.effectColor = new Color(0.12f, 0.07f, 0.12f, 0.92f);
-        outline.effectDistance = new Vector2(2.5f, -2.5f);
-        Shadow shadow = titleText.GetComponent<Shadow>() ?? titleText.gameObject.AddComponent<Shadow>();
-        shadow.effectColor = new Color(0.2f, 0.08f, 0.02f, 0.68f);
-        shadow.effectDistance = new Vector2(7f, -7f);
+    }
+
+    private Sprite FindArtwork(string title)
+    {
+        if (string.IsNullOrEmpty(title)) return null;
+        if (title.Contains("码头")) return dockTitle;
+        if (title.Contains("广场")) return squareTitle;
+        if (title.Contains("花园")) return gardenTitle;
+        if (title.Contains("森林")) return forestTitle;
+        if (title.Contains("雪岭")) return snowTitle;
+        return null;
+    }
+
+    private static void Stretch(RectTransform rect)
+    {
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
     }
 }

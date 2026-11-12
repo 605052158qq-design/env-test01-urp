@@ -99,7 +99,9 @@ public sealed class ENVVideoSequence : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
 
-        GameObject textObject = new GameObject("Label", typeof(RectTransform), typeof(Text), typeof(Outline), typeof(Shadow));
+        // Clean text only: outline/shadow can render as a muddy dark block on
+        // some Chinese glyphs and does not match the supplied UI treatment.
+        GameObject textObject = new GameObject("Label", typeof(RectTransform), typeof(Text));
         textObject.transform.SetParent(canvasObject.transform, false);
         skipHint = textObject.GetComponent<Text>();
         skipHint.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -111,12 +113,6 @@ public sealed class ENVVideoSequence : MonoBehaviour
         rect.anchorMin = new Vector2(0.5f, 0.08f);
         rect.anchorMax = new Vector2(0.5f, 0.08f);
         rect.sizeDelta = new Vector2(360f, 48f);
-        Outline outline = textObject.GetComponent<Outline>();
-        outline.effectColor = new Color(0f, 0f, 0f, 0.82f);
-        outline.effectDistance = new Vector2(2f, -2f);
-        Shadow shadow = textObject.GetComponent<Shadow>();
-        shadow.effectColor = new Color(0f, 0f, 0f, 0.45f);
-        shadow.effectDistance = new Vector2(5f, -5f);
         canvasObject.SetActive(false);
     }
 

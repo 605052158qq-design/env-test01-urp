@@ -32,6 +32,9 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
     private bool previousCcEnabled;
     private bool previousMotorEnabled;
     private bool previousApplyRootMotion;
+    private bool previousAnimatorEnabled;
+    private bool previousVisualAnimatorEnabled;
+    private ENVPlayerVisualAnimator visualAnimator;
     private ENVSeat seatedAt;
     private readonly ENVDirectClipPlayer clipPlayer = new ENVDirectClipPlayer();
     private Coroutine standRoutine;
@@ -41,6 +44,7 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         if (characterAnimator == null) characterAnimator = GetComponentInChildren<Animator>(true);
         movementScript = FindMotor();
+        visualAnimator = GetComponent<ENVPlayerVisualAnimator>();
         CurrentMode = ActorMode.Free;
         if (GetComponent<ENVInteractionPromptUI>() == null)
             gameObject.AddComponent<ENVInteractionPromptUI>();
@@ -65,7 +69,8 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
     {
         if (CurrentMode != ActorMode.Sitting || seatedAt == null || seatedIdleClip == null) return;
         // When the sit-down one-shot reaches its end, switch to the supplied seated idle.
-        if (clipPlayer.IsAtEnd && !idleStarted)
+        bool sitDownEnded = visualAnimator != null ? visualAnimator.InteractionClipAtEnd : clipPlayer.IsAtEnd;
+        if (sitDownEnded && !idleStarted)
         {
             idleStarted = true;
             PlayClip(seatedIdleClip, true, true);
@@ -106,7 +111,7 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
         if (standUpClip != null) yield return new WaitForSeconds(Mathf.Max(0.05f, standUpClip.length));
         if (seatedAt != null)
             transform.SetPositionAndRotation(seatedAt.ExitTarget.position, seatedAt.ExitTarget.rotation);
-        clipPlayer.Stop();
+        StopClipPlayback();
         seatedAt = null;
         idleStarted = false;
         UnlockMovement();
@@ -132,15 +137,26 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
     public void EndBoatRide()
     {
         if (CurrentMode != ActorMode.Boat) return;
-        clipPlayer.Stop();
+        StopClipPlayback();
         UnlockMovement();
         CurrentMode = ActorMode.Free;
     }
 
     private void PlayClip(AnimationClip clip, bool loop, bool hold)
     {
+        if (visualAnimator != null)
+        {
+            visualAnimator.PlayInteractionClip(clip, loop, hold);
+            return;
+        }
         if (characterAnimator == null) return;
         clipPlayer.Play(characterAnimator, clip, loop, hold);
+    }
+
+    private void StopClipPlayback()
+    {
+        if (visualAnimator != null) visualAnimator.StopInteractionClip();
+        clipPlayer.Stop();
     }
 
     private void LockMovement()
@@ -160,7 +176,16 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
         if (characterAnimator != null)
         {
             previousApplyRootMotion = characterAnimator.applyRootMotion;
+            previousAnimatorEnabled = characterAnimator.enabled;
+            // The normal visual animator samples Generic clips directly.  Only
+            // the Animator-Playable fallback needs an enabled Animator.
+            if (visualAnimator == null) characterAnimator.enabled = true;
             characterAnimator.applyRootMotion = false;
+        }
+        if (visualAnimator != null)
+        {
+            previousVisualAnimatorEnabled = visualAnimator.enabled;
+            visualAnimator.enabled = true;
         }
     }
 
@@ -168,7 +193,12 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
     {
         if (characterController != null) characterController.enabled = previousCcEnabled;
         if (movementScript != null) movementScript.enabled = previousMotorEnabled;
-        if (characterAnimator != null) characterAnimator.applyRootMotion = previousApplyRootMotion;
+        if (characterAnimator != null)
+        {
+            characterAnimator.applyRootMotion = previousApplyRootMotion;
+            characterAnimator.enabled = previousAnimatorEnabled;
+        }
+        if (visualAnimator != null) visualAnimator.enabled = previousVisualAnimatorEnabled;
     }
 
     private Behaviour FindMotor()
@@ -197,7 +227,7 @@ public sealed class ENVPlayerInteraction : MonoBehaviour
     private void OnDisable()
     {
         if (standRoutine != null) { StopCoroutine(standRoutine); standRoutine = null; }
-        clipPlayer.Stop();
+        StopClipPlayback();
         if (CurrentMode != ActorMode.Free) UnlockMovement();
         CurrentMode = ActorMode.Free;
     }
@@ -259,7 +289,9 @@ public sealed class ENVInteractionPromptUI : MonoBehaviour
         scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
 
-        GameObject textObject = new GameObject("Prompt", typeof(RectTransform), typeof(UnityEngine.UI.Text), typeof(UnityEngine.UI.Outline), typeof(UnityEngine.UI.Shadow));
+        // Supplied direction: retain the current font but keep this as a clean,
+        // flat white prompt without the old black outline/drop-shadow treatment.
+        GameObject textObject = new GameObject("Prompt", typeof(RectTransform), typeof(UnityEngine.UI.Text));
         textObject.transform.SetParent(canvasObject.transform, false);
         label = textObject.GetComponent<UnityEngine.UI.Text>();
         label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -272,12 +304,6 @@ public sealed class ENVInteractionPromptUI : MonoBehaviour
         rect.anchorMin = new Vector2(0.5f, 0.16f);
         rect.anchorMax = new Vector2(0.5f, 0.16f);
         rect.sizeDelta = new Vector2(440f, 52f);
-        UnityEngine.UI.Outline outline = textObject.GetComponent<UnityEngine.UI.Outline>();
-        outline.effectColor = new Color(0.04f, 0.04f, 0.08f, 0.95f);
-        outline.effectDistance = new Vector2(2f, -2f);
-        UnityEngine.UI.Shadow shadow = textObject.GetComponent<UnityEngine.UI.Shadow>();
-        shadow.effectColor = new Color(0f, 0f, 0f, 0.55f);
-        shadow.effectDistance = new Vector2(5f, -5f);
         SetVisible(false);
     }
 

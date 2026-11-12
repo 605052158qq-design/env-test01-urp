@@ -12,7 +12,7 @@ public sealed class ENVFootsteps : MonoBehaviour
     [Min(0.1f)] public float runStepInterval = 0.3f;
     [Min(0.1f)] public float runSpeedThreshold = 4.5f;
     [Min(0f)] public float minimumMovementSpeed = 0.3f;
-    [Range(0f, 1f)] public float volume = 0.55f;
+    [Range(0f, 1f)] public float volume = 0.30f;
     private CharacterController controller;
     private AudioSource audioSource;
     private float countdown;
@@ -58,7 +58,7 @@ public sealed class ENVFootsteps : MonoBehaviour
         audioSource.Play();
     }
 
-    private void StopFootsteps()
+    public void StopFootsteps()
     {
         countdown = 0f;
         if (audioSource != null && audioSource.isPlaying) audioSource.Stop();

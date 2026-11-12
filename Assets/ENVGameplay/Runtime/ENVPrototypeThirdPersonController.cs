@@ -13,11 +13,21 @@ public sealed class ENVPrototypeThirdPersonController : MonoBehaviour
     public float turnSpeed = 12f;
     public float jumpHeight = 1.3f;
     public float gravity = -20f;
+    [Range(0f, 0.35f)]
+    [Tooltip("Brief animation wind-up before the controller leaves the ground.")]
+    public float jumpWindupSeconds = 0.08f;
 
     private CharacterController controller;
     private float verticalVelocity;
+    private ENVPlayerVisualAnimator visualAnimator;
+    private bool jumpQueued;
+    private float jumpQueuedAt;
 
-    private void Awake() { controller = GetComponent<CharacterController>(); }
+    private void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+        visualAnimator = GetComponent<ENVPlayerVisualAnimator>();
+    }
 
     private void Update()
     {
@@ -35,9 +45,31 @@ public sealed class ENVPrototypeThirdPersonController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, facing, 1f - Mathf.Exp(-turnSpeed * Time.deltaTime));
         }
 
-        if (controller.isGrounded && verticalVelocity < 0f) verticalVelocity = -2f;
-        if (controller.isGrounded && JumpPressed())
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        bool grounded = controller.isGrounded;
+        if (grounded && !jumpQueued && verticalVelocity < 0f) verticalVelocity = -2f;
+        if (grounded && !jumpQueued && JumpPressed())
+        {
+            jumpQueued = true;
+            jumpQueuedAt = Time.time;
+            if (visualAnimator != null) visualAnimator.PlayJump();
+        }
+        if (jumpQueued)
+        {
+            // Existing scenes serialized before this field was introduced read
+            // as zero. Keep their first jump synchronized without requiring a
+            // scene re-save, while still allowing an explicit Inspector value.
+            float windup = jumpWindupSeconds > 0.001f ? jumpWindupSeconds : 0.08f;
+            if (Time.time >= jumpQueuedAt + windup)
+            {
+                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                jumpQueued = false;
+            }
+            else
+            {
+                // Keep the controller grounded during the animation's crouch / takeoff frames.
+                verticalVelocity = -2f;
+            }
+        }
         verticalVelocity += gravity * Time.deltaTime;
         float speed = SprintHeld() ? sprintSpeed : walkSpeed;
         controller.Move((movement * speed + Vector3.up * verticalVelocity) * Time.deltaTime);

@@ -8,6 +8,10 @@ using UnityEngine;
 public class ENVTest01MaterialAssigner : AssetPostprocessor
 {
     public const string SourcePath = "Assets/Map/Models/ENV_test01_1021.FBX";
+    // The artist's regrouped version must use the same URP material assets as
+    // the live map.  Otherwise it may render with embedded/Standard materials
+    // and bypass the per-renderer colour recovery shader path.
+    public const string ControlledSourcePath = "Assets/ENV_test2_1112.fbx";
 
     public static readonly Dictionary<string, string> MaterialPaths =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -143,7 +147,7 @@ public class ENVTest01MaterialAssigner : AssetPostprocessor
 
     private void OnPreprocessModel()
     {
-        if (!string.Equals(assetPath, SourcePath, StringComparison.OrdinalIgnoreCase)) return;
+        if (!IsSupportedMapModel(assetPath)) return;
         var importer = assetImporter as ModelImporter;
         if (importer == null) return;
         importer.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
@@ -165,7 +169,13 @@ public class ENVTest01MaterialAssigner : AssetPostprocessor
 
     private Material OnAssignMaterialModel(Material material, Renderer renderer)
     {
-        if (!string.Equals(assetPath, SourcePath, StringComparison.OrdinalIgnoreCase)) return null;
+        if (!IsSupportedMapModel(assetPath)) return null;
         return material != null ? Resolve(material.name) : null;
+    }
+
+    private static bool IsSupportedMapModel(string path)
+    {
+        return string.Equals(path, SourcePath, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(path, ControlledSourcePath, StringComparison.OrdinalIgnoreCase);
     }
 }

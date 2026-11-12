@@ -15,7 +15,7 @@ public sealed class ENVAudioBank : MonoBehaviour
     public AudioClip uiClick;
 
     [Header("Gameplay mix")]
-    [Range(0f, 1f)] public float musicVolume = 0.42f;
+    [Range(0f, 1f)] public float musicVolume = 0.26f;
     [Range(0f, 1f)] public float waterVolume = 0.20f;
     [Range(0f, 1f)] public float waterfallVolume = 0.16f;
     [Range(0f, 1f)] public float campfireVolume = 0.14f;
@@ -34,7 +34,6 @@ public sealed class ENVAudioBank : MonoBehaviour
     private AudioSource waterfallSource;
     private AudioSource campfireSource;
     private AudioSource gemTouchSource;
-    private bool gameplayAudioStarted;
 
     public AudioClip Get(ENVAudioSlot slot)
     {
@@ -58,8 +57,6 @@ public sealed class ENVAudioBank : MonoBehaviour
     /// </summary>
     public void StartGameplayAudio()
     {
-        if (gameplayAudioStarted) return;
-        gameplayAudioStarted = true;
         PlayLoop(ref musicSource, "BGM", A_backgroundMusic, musicVolume);
         PlayWorldLoop(ref waterSource, "Water ambience", C_water, waterVolume, ref waterAnchor,
             "VFX_RiverAmbient", "River", "Water", "Stream", "Lake", "Ocean", "河", "水");
@@ -71,7 +68,6 @@ public sealed class ENVAudioBank : MonoBehaviour
 
     public void StopGameplayAudio()
     {
-        gameplayAudioStarted = false;
         Stop(musicSource); Stop(waterSource); Stop(waterfallSource); Stop(campfireSource);
     }
 
@@ -84,7 +80,11 @@ public sealed class ENVAudioBank : MonoBehaviour
 
     private void PlayLoop(ref AudioSource source, string sourceName, AudioClip clip, float volume)
     {
-        if (clip == null) return;
+        if (clip == null)
+        {
+            Debug.LogWarning("[ENV Audio] " + sourceName + " has no playable AudioClip assigned.", this);
+            return;
+        }
         if (source == null)
         {
             source = CreateSource(sourceName);

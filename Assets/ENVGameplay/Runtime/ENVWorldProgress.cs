@@ -15,6 +15,8 @@ public sealed class ENVWorldProgress : MonoBehaviour
     public static ENVWorldProgress Instance { get; private set; }
     public bool requireSequence = true;
     [Min(1)] public int expectedGemCount = 7;
+    [Tooltip("The ending must not interrupt the final colour-recovery reveal.")]
+    [Min(0f)] public float completionDelaySeconds = 8f;
     public UnityEvent onAllGemsActivated;
 
     private readonly List<ENVGem> gems = new List<ENVGem>();
@@ -124,7 +126,8 @@ public sealed class ENVWorldProgress : MonoBehaviour
 
     private IEnumerator FinishAfterColorReveal(ENVGem lastGem)
     {
-        if (lastGem != null) yield return new WaitForSeconds(lastGem.revealSeconds);
+        float revealSeconds = lastGem != null ? lastGem.revealSeconds : 0f;
+        yield return new WaitForSeconds(Mathf.Max(revealSeconds, completionDelaySeconds));
         if (completed && onAllGemsActivated != null) onAllGemsActivated.Invoke();
     }
 

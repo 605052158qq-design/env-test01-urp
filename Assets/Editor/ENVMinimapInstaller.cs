@@ -8,6 +8,8 @@ using UnityEngine;
 public static class ENVMinimapInstaller
 {
     private const string MapTexturePath = "Assets/UI/小地图.png";
+    private const string ArrowSpritePath = "Assets/UI/小地图的箭头.png";
+    private const string StatusSpritePath = "Assets/UI/小地图下方文字背景.png";
 
     // The project is normally opened directly to ENV_test01_Main.  Queue the
     // first install after scripts reload so dropping these two files into an
@@ -38,6 +40,8 @@ public static class ENVMinimapInstaller
 
         Undo.RecordObject(minimap, "Configure circular minimap");
         minimap.mapTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(MapTexturePath);
+        minimap.playerArrowSprite = AssetDatabase.LoadAssetAtPath<Sprite>(ArrowSpritePath);
+        minimap.statusBackgroundSprite = AssetDatabase.LoadAssetAtPath<Sprite>(StatusSpritePath);
         CharacterController controller = Object.FindObjectOfType<CharacterController>(true);
         if (controller != null) minimap.player = controller.transform;
         GameObject mapRoot = GameObject.Find("MapRoot");

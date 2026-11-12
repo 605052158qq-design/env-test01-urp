@@ -21,9 +21,13 @@ public sealed class ENVRegionTrigger : MonoBehaviour
     public UnityEvent onRestored;
 
     [Header("Region ambient audio")]
-    [Tooltip("A looping 2D ambience that plays only while the player is inside this region.")]
+    [Tooltip("A looping ambience that plays only while the player is inside this region.")]
     public AudioClip ambientClip;
-    [Range(0f, 1f)] public float ambientVolume = 0.5f;
+    [Range(0f, 1f)] public float ambientVolume = 0.18f;
+    [Tooltip("Use physical distance falloff so nearby areas are clear and distant ones fade naturally.")]
+    public bool spatializeAmbient = true;
+    [Min(0.1f)] public float ambientMinDistance = 4f;
+    [Min(1f)] public float ambientMaxDistance = 28f;
 
     public Transform player;
     public bool once = true;
@@ -46,7 +50,10 @@ public sealed class ENVRegionTrigger : MonoBehaviour
         ambientSource.clip = ambientClip;
         ambientSource.loop = true;
         ambientSource.volume = ambientVolume;
-        ambientSource.spatialBlend = 0f;
+        ambientSource.spatialBlend = spatializeAmbient ? 1f : 0f;
+        ambientSource.rolloffMode = AudioRolloffMode.Logarithmic;
+        ambientSource.minDistance = ambientMinDistance;
+        ambientSource.maxDistance = Mathf.Max(ambientMinDistance, ambientMaxDistance);
         ambientSource.dopplerLevel = 0f;
     }
 

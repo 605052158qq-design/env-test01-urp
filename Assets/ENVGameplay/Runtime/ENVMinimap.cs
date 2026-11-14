@@ -13,10 +13,14 @@ public sealed class ENVMinimap : MonoBehaviour
     [Header("Map asset")]
     [Tooltip("The square map illustration shown under the circular UI mask.")]
     public Texture2D mapTexture;
+    [Tooltip("Persistent sprite variant of the map artwork, used by the editable prefab.")]
+    public Sprite mapArtworkSprite;
     [Tooltip("Optional supplied player arrow. Falls back to the temporary generated arrow when empty.")]
     public Sprite playerArrowSprite;
     [Tooltip("Optional supplied lower information panel artwork.")]
     public Sprite statusBackgroundSprite;
+    [Tooltip("Persistent circular mask/frame sprite used by the editable prefab.")]
+    public Sprite circleMaskSprite;
 
     [Header("Scene references (optional; resolved automatically when empty)")]
     public Transform player;
@@ -39,13 +43,14 @@ public sealed class ENVMinimap : MonoBehaviour
     [Tooltip("The illustrated snow-mountain location, measured from bottom-left.")]
     public Vector2 snowMapPosition = new Vector2(0.52f, 0.83f);
 
-    private RectTransform mapRect;
-    private RectTransform mapContent;
-    private RectTransform playerMarker;
-    private RectTransform objectiveMarker;
-    private Text objectiveTitleLabel;
-    private Text statusLabel;
-    private Canvas uiCanvas;
+    [Header("Prefab UI references")]
+    [SerializeField] private RectTransform mapRect;
+    [SerializeField] private RectTransform mapContent;
+    [SerializeField] private RectTransform playerMarker;
+    [SerializeField] private RectTransform objectiveMarker;
+    [SerializeField] private Text objectiveTitleLabel;
+    [SerializeField] private Text statusLabel;
+    [SerializeField] private Canvas uiCanvas;
     private ENVStartScreen startScreen;
     private ENVBoatArrival boatArrival;
     private Bounds worldBounds;
@@ -152,6 +157,12 @@ public sealed class ENVMinimap : MonoBehaviour
         }
     }
 
+    /// <summary>Editor prefab builder entry point. Runtime calls this from Awake.</summary>
+    public void BuildUiTemplate()
+    {
+        BuildUi();
+    }
+
     private void BuildUi()
     {
         if (mapRect != null) return;
@@ -161,9 +172,11 @@ public sealed class ENVMinimap : MonoBehaviour
         // enlarged presentation is immediately visible after recompilation.
         mapDiameter = Mathf.Max(mapDiameter, 290f);
 
-        circleSprite = CreateCircleSprite(128, 1f);
+        // Fallback instances still receive a dense, feathered circle rather
+        // than the old 128px hard-edge stencil shape.
+        circleSprite = circleMaskSprite != null ? circleMaskSprite : CreateCircleSprite(1024, 1f);
         arrowSprite = playerArrowSprite != null ? playerArrowSprite : CreateArrowSprite(96);
-        objectiveSprite = CreateCircleSprite(64, 0.82f);
+        objectiveSprite = circleMaskSprite != null ? circleMaskSprite : CreateCircleSprite(64, 0.82f);
 
         GameObject canvasObject = new GameObject("ENV Minimap UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
         canvasObject.transform.SetParent(transform, false);
@@ -192,7 +205,6 @@ public sealed class ENVMinimap : MonoBehaviour
         borderRect.pivot = new Vector2(0f, 1f);
         borderRect.anchoredPosition = Vector2.zero;
         borderRect.sizeDelta = new Vector2(mapDiameter + 10f, mapDiameter + 10f);
-        AddOutline(border, new Color(0.08f, 0.22f, 0.27f, 0.78f), 2f);
 
         Image maskImage = CreateImage("Circular Mask", rootRect, circleSprite, Color.white);
         mapRect = maskImage.rectTransform;
@@ -361,6 +373,7 @@ public sealed class ENVMinimap : MonoBehaviour
 
     private Sprite CreateMapSprite()
     {
+        if (mapArtworkSprite != null) return mapArtworkSprite;
         if (mapTexture == null) return circleSprite;
         return Sprite.Create(mapTexture, new Rect(0f, 0f, mapTexture.width, mapTexture.height), new Vector2(0.5f, 0.5f), 100f);
     }
@@ -431,7 +444,9 @@ public sealed class ENVMinimap : MonoBehaviour
         for (int y = 0; y < size; y++)
         for (int x = 0; x < size; x++)
         {
-            float alpha = Vector2.Distance(new Vector2(x, y), center) <= radius ? 1f : 0f;
+            // One texel of coverage feathering prevents the circular UI edge
+            // from stair-stepping when Unity scales it on different displays.
+            float alpha = Mathf.Clamp01(radius - Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), center) + 0.5f);
             pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
         }
         texture.SetPixels(pixels);

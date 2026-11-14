@@ -49,8 +49,11 @@ public sealed class ENVRegionTitleUI : MonoBehaviour
         container.transform.SetParent(canvasGO.transform, false);
         group = container.GetComponent<CanvasGroup>();
         RectTransform containerRect = container.GetComponent<RectTransform>();
-        containerRect.anchorMin = new Vector2(0.15f, 0.65f);
-        containerRect.anchorMax = new Vector2(0.85f, 0.81f);
+        // Regional title artwork is a compact card. Give it enough vertical
+        // room to display at a readable, cinematic size after its transparent
+        // padding has been cropped by the editor setup utility.
+        containerRect.anchorMin = new Vector2(0.16f, 0.61f);
+        containerRect.anchorMax = new Vector2(0.84f, 0.91f);
         containerRect.offsetMin = containerRect.offsetMax = Vector2.zero;
 
         GameObject imageGO = new GameObject("Area Name Artwork", typeof(RectTransform), typeof(Image));

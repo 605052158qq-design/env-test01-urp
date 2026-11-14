@@ -56,7 +56,7 @@ Material:
     - _ReflectionUseAlpha: 0
     - _RefractionStrength: 0.01
     - _RippleIntensity: 0.18
-    - _RippleThreshold: 0.962
+    - _RippleThreshold: 0.878
     - _RippleTiling: 0.05
     - _Shineness: 0
     - _SurfaceScale: 0

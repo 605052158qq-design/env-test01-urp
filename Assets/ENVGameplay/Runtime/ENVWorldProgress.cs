@@ -13,7 +13,8 @@ using UnityEngine.Events;
 public sealed class ENVWorldProgress : MonoBehaviour
 {
     public static ENVWorldProgress Instance { get; private set; }
-    public bool requireSequence = true;
+    [Tooltip("When disabled, every uncollected gem may be activated in any order.")]
+    public bool requireSequence = false;
     [Min(1)] public int expectedGemCount = 7;
     [Tooltip("The ending must not interrupt the final colour-recovery reveal.")]
     [Min(0f)] public float completionDelaySeconds = 8f;
@@ -116,8 +117,9 @@ public sealed class ENVWorldProgress : MonoBehaviour
     {
         GemActivated?.Invoke(gem);
         if (completed || !ValidateSetup(false) || gem == null) return;
-        // The full completion event is reserved exclusively for the final purple gem.
-        if (gem.sequenceIndex != expectedGemCount - 1) return;
+        // Completion belongs to the seventh collected gem, regardless of its authored
+        // sequence index. This keeps the seven locations entirely free-form: a player
+        // can collect the purple gem first and still complete once the other six are in.
         foreach (ENVGem registered in gems)
             if (registered == null || !registered.Activated) return;
         completed = true;

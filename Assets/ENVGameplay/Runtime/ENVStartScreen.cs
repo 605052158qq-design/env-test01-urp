@@ -124,6 +124,9 @@ public sealed class ENVStartScreen : MonoBehaviour
         introPending = false;
         GameplayReady = false;
         hoveredAction = 0;
+        // Footsteps use their own AudioSource rather than the world-audio bank.
+        // Stop an in-flight step before freezing the world behind the menu.
+        ENVFootsteps.StopAllFootsteps();
         if (menuRoot != null) menuRoot.SetActive(true);
         SetGameplayInput(false);
         SetWorldVisible(false);

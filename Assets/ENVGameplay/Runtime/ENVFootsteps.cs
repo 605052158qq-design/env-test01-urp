@@ -64,5 +64,12 @@ public sealed class ENVFootsteps : MonoBehaviour
         if (audioSource != null && audioSource.isPlaying) audioSource.Stop();
     }
 
+    /// <summary>Stops every player-footstep source before a menu/cinematic takes over.</summary>
+    public static void StopAllFootsteps()
+    {
+        foreach (ENVFootsteps footsteps in FindObjectsOfType<ENVFootsteps>(true))
+            if (footsteps != null) footsteps.StopFootsteps();
+    }
+
     private void OnDisable() { StopFootsteps(); }
 }

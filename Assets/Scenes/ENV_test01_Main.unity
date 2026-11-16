@@ -33060,6 +33060,10 @@ PrefabInstance:
       propertyPath: m_RenderingLayerMask
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: -21845608414105629, guid: 4d43558e2e962244f85d254eb5dde65e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -3681213910953702, guid: 4d43558e2e962244f85d254eb5dde65e, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 9
@@ -130671,7 +130675,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1380479973
 Transform:
   m_ObjectHideFlags: 0
@@ -130747,7 +130751,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 33
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 8132513715605079983, guid: 816d5af8f46d82d40a745492e9ccf074, type: 3}
